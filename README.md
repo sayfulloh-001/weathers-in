@@ -40,3 +40,4 @@ Ob-havo ilovasi yomg'ir tomchilari va rangli animatsiyalar bilan.
 ## 📄 Litsenziya
 
 MIT# weathers-in
+# weathers-
