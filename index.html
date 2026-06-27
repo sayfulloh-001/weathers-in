@@ -29,13 +29,13 @@
 
         /* ===== LIGHT MODE ===== */
         body.light {
-            background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 50%, #f5f5f5 100%);
+            background: linear-gradient(135deg, #f0f4ff 0%, #e8eeff 50%, #f0f4ff 100%);
             color: #1a1a1a;
         }
 
         body.light .hdr {
             background: rgba(255,255,255,0.9);
-            border-color: rgba(200,200,200,0.3);
+            border-color: rgba(66, 133, 244, 0.3);
         }
 
         body.light .crd,
@@ -44,12 +44,12 @@
         body.light .fcst-itm,
         body.light .map-crd {
             background: rgba(255,255,255,0.85);
-            border-color: rgba(200,200,200,0.2);
+            border-color: rgba(66, 133, 244, 0.2);
         }
 
         body.light .src {
             background: rgba(255,255,255,0.9);
-            border-color: #aaaaaa;
+            border-color: #4285f4;
         }
         body.light .src input { color: #1a1a1a; }
         body.light .src input::placeholder { color: #999999; }
@@ -57,39 +57,42 @@
         body.light .btn {
             background: rgba(255,255,255,0.7);
             color: #555555;
-            border-color: rgba(200,200,200,0.3);
+            border-color: rgba(66, 133, 244, 0.3);
         }
         body.light .btn:hover {
-            background: rgba(200,200,200,0.2);
+            background: rgba(66, 133, 244, 0.1);
             color: #1a1a1a;
         }
         body.light .btn.act {
-            background: rgba(200,200,200,0.3);
-            color: #333333;
-            border-color: #999999;
+            background: rgba(66, 133, 244, 0.2);
+            color: #4285f4;
+            border-color: #4285f4;
         }
 
         body.light .bottom-nav {
             background: rgba(255,255,255,0.95);
-            border-top: 1px solid rgba(200,200,200,0.3);
+            border-top: 1px solid rgba(66, 133, 244, 0.2);
         }
 
         body.light .nav-item {
             color: #888888;
         }
         body.light .nav-item.active {
-            color: #333333;
+            color: #4285f4;
+        }
+        body.light .nav-item.active::before {
+            background: #4285f4;
         }
 
         /* ===== DARK MODE ===== */
         body.dark {
-            background: linear-gradient(145deg, #0a0a0a 0%, #1a1a1a 30%, #2a2a2a 60%, #0a0a0a 100%);
+            background: linear-gradient(145deg, #0a0e1a 0%, #1a1a2e 30%, #16213e 60%, #0a0e1a 100%);
             color: #e8e8e8;
         }
 
         body.dark .hdr {
-            background: rgba(20,20,20,0.9);
-            border-color: rgba(100,100,100,0.2);
+            background: rgba(20,20,40,0.9);
+            border-color: rgba(66, 133, 244, 0.2);
             box-shadow: 0 4px 30px rgba(0,0,0,0.4);
         }
 
@@ -98,8 +101,8 @@
         body.dark .faq,
         body.dark .fcst-itm,
         body.dark .map-crd {
-            background: rgba(30,30,30,0.8);
-            border-color: rgba(100,100,100,0.15);
+            background: rgba(30,30,60,0.8);
+            border-color: rgba(66, 133, 244, 0.15);
             backdrop-filter: blur(20px);
             box-shadow: 0 8px 32px rgba(0,0,0,0.3);
         }
@@ -109,43 +112,46 @@
         body.dark .faq:hover,
         body.dark .fcst-itm:hover,
         body.dark .map-crd:hover {
-            border-color: rgba(200,200,200,0.3);
-            box-shadow: 0 8px 40px rgba(0,0,0,0.4);
+            border-color: rgba(66, 133, 244, 0.4);
+            box-shadow: 0 8px 40px rgba(66, 133, 244, 0.1);
         }
 
         body.dark .src {
-            background: rgba(30,30,30,0.7);
-            border-color: #666666;
+            background: rgba(30,30,60,0.7);
+            border-color: #4285f4;
         }
         body.dark .src input { color: #e8e8e8; }
         body.dark .src input::placeholder { color: #888888; }
 
         body.dark .btn {
-            background: rgba(40,40,40,0.5);
+            background: rgba(40,40,70,0.5);
             color: #aaaaaa;
-            border-color: rgba(100,100,100,0.2);
+            border-color: rgba(66, 133, 244, 0.2);
         }
         body.dark .btn:hover {
-            background: rgba(100,100,100,0.2);
+            background: rgba(66, 133, 244, 0.15);
             color: #e8e8e8;
-            border-color: #888888;
+            border-color: #4285f4;
         }
         body.dark .btn.act {
-            background: rgba(150,150,150,0.15);
-            color: #cccccc;
-            border-color: #888888;
+            background: rgba(66, 133, 244, 0.2);
+            color: #64b5f6;
+            border-color: #4285f4;
         }
 
         body.dark .bottom-nav {
-            background: rgba(20,20,20,0.95);
-            border-top: 1px solid rgba(100,100,100,0.15);
+            background: rgba(20,20,40,0.95);
+            border-top: 1px solid rgba(66, 133, 244, 0.15);
         }
 
         body.dark .nav-item {
             color: #777777;
         }
         body.dark .nav-item.active {
-            color: #cccccc;
+            color: #64b5f6;
+        }
+        body.dark .nav-item.active::before {
+            background: #4285f4;
         }
 
         /* ===== RAIN CANVAS ===== */
@@ -199,7 +205,7 @@
             padding: 12px 16px;
             backdrop-filter: blur(20px);
             border-radius: 16px;
-            border: 2px solid rgba(200,200,200,0.15);
+            border: 2px solid rgba(66, 133, 244, 0.15);
             margin-bottom: 16px;
             flex-wrap: wrap;
             gap: 8px;
@@ -209,7 +215,7 @@
         .hdr-l { display: flex; align-items: center; gap: 10px; }
         .logo { 
             font-size: 24px; 
-            color: #888888;
+            color: #4285f4;
             cursor: pointer; 
             transition: all 0.4s ease;
             display: inline-block;
@@ -218,7 +224,7 @@
         .hdr-t {
             font-size: 16px;
             font-weight: 800;
-            color: #888888;
+            color: #4285f4;
             letter-spacing: 0.5px;
         }
         .hdr-r { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
@@ -229,10 +235,10 @@
             align-items: center;
             border-radius: 50px;
             padding: 2px 2px 2px 10px;
-            border: 2px solid #888888;
+            border: 2px solid #4285f4;
             transition: all 0.4s ease;
         }
-        .src:focus-within { box-shadow: 0 0 30px rgba(100,100,100,0.15); }
+        .src:focus-within { box-shadow: 0 0 30px rgba(66, 133, 244, 0.2); }
         .src input {
             background: none;
             border: none;
@@ -244,7 +250,7 @@
         }
         .src input::placeholder { color: #999999; }
         .src button {
-            background: #888888;
+            background: #4285f4;
             border: none;
             color: #fff;
             padding: 5px 12px;
@@ -256,15 +262,15 @@
         }
         .src button:hover { 
             transform: scale(1.05); 
-            box-shadow: 0 0 30px rgba(100,100,100,0.2);
-            background: #666666;
+            box-shadow: 0 0 30px rgba(66, 133, 244, 0.3);
+            background: #ea4335;
         }
 
         /* ===== BUTTONS ===== */
         .btn {
             padding: 6px 12px;
             border-radius: 50px;
-            border: 2px solid rgba(150,150,150,0.2);
+            border: 2px solid rgba(66, 133, 244, 0.2);
             cursor: pointer;
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             font-size: 12px;
@@ -272,25 +278,25 @@
             align-items: center;
             gap: 4px;
             font-family: inherit;
-            background: rgba(200,200,200,0.1);
-            color: #888888;
+            background: rgba(66, 133, 244, 0.05);
+            color: #4285f4;
         }
         .btn:hover { 
             transform: translateY(-2px) scale(1.02); 
-            box-shadow: 0 8px 30px rgba(0,0,0,0.08);
-            background: rgba(150,150,150,0.15);
-            color: #555555;
+            box-shadow: 0 8px 30px rgba(66, 133, 244, 0.15);
+            background: rgba(66, 133, 244, 0.15);
+            color: #4285f4;
         }
         .btn.act {
-            background: rgba(150,150,150,0.15);
-            color: #555555;
-            border-color: #888888;
+            background: rgba(66, 133, 244, 0.2);
+            color: #4285f4;
+            border-color: #4285f4;
         }
         .btn.act::before {
             content: '';
             width: 3px;
             height: 16px;
-            background: #888888;
+            background: #4285f4;
             border-radius: 4px;
         }
 
@@ -302,12 +308,12 @@
             flex-wrap: wrap;
         }
         .map-type .btn.sat {
-            color: #666666;
-            border-color: #888888;
-            background: rgba(150,150,150,0.1);
+            color: #4285f4;
+            border-color: #4285f4;
+            background: rgba(66, 133, 244, 0.1);
         }
         .map-type .btn.sat:hover {
-            background: rgba(150,150,150,0.2);
+            background: rgba(66, 133, 244, 0.2);
         }
 
         /* ===== GRID ===== */
@@ -322,7 +328,7 @@
         .crd {
             border-radius: 14px;
             padding: 14px 16px;
-            border: 2px solid rgba(200,200,200,0.15);
+            border: 2px solid rgba(66, 133, 244, 0.15);
             transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
             cursor: default;
             position: relative;
@@ -330,8 +336,8 @@
         }
         .crd:hover { 
             transform: translateY(-4px) scale(1.02); 
-            box-shadow: 0 10px 40px rgba(0,0,0,0.06);
-            border-color: rgba(150,150,150,0.3);
+            box-shadow: 0 10px 40px rgba(66, 133, 244, 0.1);
+            border-color: rgba(66, 133, 244, 0.3);
         }
 
         .crd .lbl {
@@ -345,31 +351,32 @@
             margin-bottom: 4px;
             color: #999999;
         }
-        .crd .lbl i { color: #888888; font-size: 11px; }
+        .crd .lbl i { color: #4285f4; font-size: 11px; }
         .crd .val {
             font-size: 20px;
             font-weight: 800;
-            color: #444444;
+            color: #4285f4;
         }
-        body.dark .crd .val { color: #cccccc; }
+        body.dark .crd .val { color: #64b5f6; }
         .crd .sub { font-size: 10px; color: #999999; }
         .crd .rw { display: flex; justify-content: space-between; align-items: center; }
         .crd .rw i {
             font-size: 18px;
             opacity: 0.3;
             transition: all 0.4s ease;
-            color: #888888;
+            color: #4285f4;
         }
         .crd:hover .rw i {
             opacity: 0.8;
             transform: rotate(15deg) scale(1.1);
+            color: #ea4335;
         }
 
         /* ===== BIG CARD ===== */
         .bcrd {
             border-radius: 14px;
             padding: 16px 20px;
-            border: 2px solid rgba(200,200,200,0.15);
+            border: 2px solid rgba(66, 133, 244, 0.15);
             margin-bottom: 12px;
             display: flex;
             justify-content: space-between;
@@ -380,8 +387,8 @@
         }
         .bcrd:hover { 
             transform: translateY(-3px) scale(1.01);
-            box-shadow: 0 15px 50px rgba(0,0,0,0.06);
-            border-color: rgba(150,150,150,0.3);
+            box-shadow: 0 15px 50px rgba(66, 133, 244, 0.1);
+            border-color: rgba(66, 133, 244, 0.3);
         }
 
         .bcrd .lbl {
@@ -395,9 +402,9 @@
             font-size: 44px;
             font-weight: 900;
             line-height: 1;
-            color: #444444;
+            color: #4285f4;
         }
-        body.dark .bcrd .tmp { color: #cccccc; }
+        body.dark .bcrd .tmp { color: #64b5f6; }
         .bcrd .tmp sup {
             font-size: 18px;
             font-weight: 600;
@@ -422,21 +429,22 @@
             gap: 3px;
             font-weight: 600;
         }
-        .bcrd .rng .hi { color: #666666; }
-        .bcrd .rng .lo { color: #666666; }
-        body.dark .bcrd .rng .hi { color: #aaaaaa; }
-        body.dark .bcrd .rng .lo { color: #aaaaaa; }
+        .bcrd .rng .hi { color: #ea4335; }
+        .bcrd .rng .lo { color: #4285f4; }
+        body.dark .bcrd .rng .hi { color: #f44336; }
+        body.dark .bcrd .rng .lo { color: #64b5f6; }
 
         .bcrd .icn {
             font-size: 44px;
-            color: #888888;
+            color: #4285f4;
             transition: all 0.6s ease;
             animation: flt 3s ease-in-out infinite;
-            text-shadow: 0 0 40px rgba(100,100,100,0.1);
+            text-shadow: 0 0 40px rgba(66, 133, 244, 0.2);
         }
         .bcrd:hover .icn {
-            transform: scale(1.1);
-            text-shadow: 0 0 60px rgba(100,100,100,0.2);
+            transform: scale(1.1) rotate(-5deg);
+            text-shadow: 0 0 60px rgba(66, 133, 244, 0.3);
+            color: #ea4335;
         }
 
         @keyframes flt {
@@ -456,7 +464,7 @@
             border-radius: 10px;
             padding: 8px 2px;
             text-align: center;
-            border: 2px solid rgba(200,200,200,0.15);
+            border: 2px solid rgba(66, 133, 244, 0.15);
             transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
             cursor: default;
             position: relative;
@@ -464,8 +472,8 @@
         }
         .fcst-itm:hover { 
             transform: translateY(-4px) scale(1.04);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.06);
-            border-color: rgba(150,150,150,0.3);
+            box-shadow: 0 10px 30px rgba(66, 133, 244, 0.1);
+            border-color: rgba(66, 133, 244, 0.3);
         }
 
         .fcst-itm .day {
@@ -477,22 +485,24 @@
         .fcst-itm .icn {
             font-size: 18px;
             margin: 2px 0;
-            color: #888888;
+            color: #4285f4;
             transition: all 0.4s ease;
         }
         .fcst-itm:hover .icn {
             transform: scale(1.3) rotate(-15deg);
+            color: #ea4335;
         }
         .fcst-itm .hi {
             font-size: 13px;
             font-weight: 700;
-            color: #555555;
+            color: #ea4335;
         }
-        body.dark .fcst-itm .hi { color: #cccccc; }
+        body.dark .fcst-itm .hi { color: #f44336; }
         .fcst-itm .lo {
             font-size: 10px;
-            color: #999999;
+            color: #4285f4;
         }
+        body.dark .fcst-itm .lo { color: #64b5f6; }
 
         .fcst-itm .date-label {
             font-size: 8px;
@@ -502,15 +512,18 @@
         }
 
         .fcst-itm.today {
-            border-color: #888888;
-            background: rgba(150,150,150,0.08);
+            border-color: #4285f4;
+            background: rgba(66, 133, 244, 0.08);
+        }
+        .fcst-itm.today .day {
+            color: #4285f4;
         }
 
         /* ===== MAP CARD ===== */
         .map-crd {
             border-radius: 14px;
             padding: 12px;
-            border: 2px solid rgba(200,200,200,0.15);
+            border: 2px solid rgba(66, 133, 244, 0.15);
             margin-bottom: 12px;
             transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
             position: relative;
@@ -518,8 +531,8 @@
         }
         .map-crd:hover { 
             transform: translateY(-2px);
-            box-shadow: 0 10px 40px rgba(0,0,0,0.06);
-            border-color: rgba(150,150,150,0.3);
+            box-shadow: 0 10px 40px rgba(66, 133, 244, 0.1);
+            border-color: rgba(66, 133, 244, 0.3);
         }
 
         #map {
@@ -534,12 +547,12 @@
             filter: brightness(0.6) contrast(1.2);
         }
         body.dark .leaflet-control-zoom a {
-            background: rgba(40,40,40,0.8);
+            background: rgba(40,40,70,0.8);
             color: #e8e8e8;
-            border-color: rgba(100,100,100,0.3);
+            border-color: rgba(66, 133, 244, 0.3);
         }
         body.dark .leaflet-control-zoom a:hover {
-            background: rgba(80,80,80,0.8);
+            background: rgba(66, 133, 244, 0.3);
         }
 
         /* ===== SECTION TITLE ===== */
@@ -550,10 +563,10 @@
             display: flex;
             align-items: center;
             gap: 6px;
-            color: #888888;
+            color: #4285f4;
         }
         .stl i {
-            color: #888888;
+            color: #4285f4;
             font-size: 15px;
         }
 
@@ -570,25 +583,25 @@
             font-size: 8px;
             text-transform: uppercase;
             letter-spacing: 0.4px;
-            border-bottom: 2px solid #888888;
-            color: #888888;
+            border-bottom: 2px solid #4285f4;
+            color: #4285f4;
         }
         .tbl td {
             padding: 8px 6px;
-            border-bottom: 1px solid rgba(200,200,200,0.08);
+            border-bottom: 1px solid rgba(66, 133, 244, 0.08);
             transition: all 0.3s ease;
         }
-        .tbl tr:hover td { background: rgba(150,150,150,0.05); }
+        .tbl tr:hover td { background: rgba(66, 133, 244, 0.05); }
         .tbl .city {
             font-weight: 700;
-            color: #555555;
+            color: #4285f4;
         }
-        body.dark .tbl .city { color: #cccccc; }
+        body.dark .tbl .city { color: #64b5f6; }
         .tbl .tmp {
             font-weight: 700;
-            color: #555555;
+            color: #ea4335;
         }
-        body.dark .tbl .tmp { color: #cccccc; }
+        body.dark .tbl .tmp { color: #f44336; }
         .tbl .stt { text-transform: capitalize; color: #888888; }
 
         /* ===== FAQ ===== */
@@ -596,14 +609,14 @@
             border-radius: 10px;
             padding: 10px 14px;
             margin-bottom: 6px;
-            border: 2px solid rgba(200,200,200,0.15);
+            border: 2px solid rgba(66, 133, 244, 0.15);
             transition: all 0.5s ease;
             position: relative;
             overflow: hidden;
         }
         .faq:hover { 
             transform: translateX(4px);
-            border-color: rgba(150,150,150,0.3);
+            border-color: rgba(66, 133, 244, 0.3);
         }
 
         .faq .q {
@@ -614,12 +627,12 @@
             font-weight: 600;
             font-size: 12px;
             transition: all 0.3s ease;
-            color: #888888;
+            color: #4285f4;
         }
         .faq .q:hover {
-            color: #555555;
+            color: #ea4335;
         }
-        body.dark .faq .q:hover { color: #cccccc; }
+        body.dark .faq .q:hover { color: #64b5f6; }
         .faq .q i {
             transition: all 0.3s ease;
             font-size: 12px;
@@ -627,7 +640,7 @@
         }
         .faq .q i.opn {
             transform: rotate(180deg);
-            color: #666666;
+            color: #4285f4;
         }
 
         .faq .a {
@@ -641,7 +654,7 @@
         .faq .a.opn {
             max-height: 200px;
             padding-top: 8px;
-            border-top: 2px solid #888888;
+            border-top: 2px solid #4285f4;
             margin-top: 6px;
         }
 
@@ -651,7 +664,7 @@
             font-size: 9px;
             margin-top: 12px;
             padding-top: 10px;
-            border-top: 2px solid rgba(200,200,200,0.15);
+            border-top: 2px solid rgba(66, 133, 244, 0.15);
             font-weight: 500;
             letter-spacing: 0.2px;
             color: #999999;
@@ -675,9 +688,9 @@
             width: 40px;
             height: 40px;
             border: 4px solid transparent;
-            border-top-color: #888888;
-            border-right-color: #666666;
-            border-bottom-color: #888888;
+            border-top-color: #4285f4;
+            border-right-color: #ea4335;
+            border-bottom-color: #4285f4;
             border-radius: 50%;
             animation: spn 0.8s linear infinite;
         }
@@ -687,7 +700,7 @@
         .lod p {
             font-size: 14px;
             font-weight: 600;
-            color: #888888;
+            color: #4285f4;
         }
 
         /* ===== ERROR ===== */
@@ -708,9 +721,9 @@
 
         .err .icn {
             font-size: 48px;
-            color: #888888;
+            color: #ea4335;
             animation: shk 0.6s ease-in-out;
-            text-shadow: 0 0 60px rgba(100,100,100,0.2);
+            text-shadow: 0 0 60px rgba(234, 67, 53, 0.2);
         }
 
         @keyframes shk {
@@ -724,9 +737,9 @@
         .err .ttl {
             font-size: 20px;
             font-weight: 800;
-            color: #666666;
+            color: #ea4335;
         }
-        body.dark .err .ttl { color: #cccccc; }
+        body.dark .err .ttl { color: #f44336; }
         .err .dsc {
             font-size: 13px;
             max-width: 320px;
@@ -738,7 +751,7 @@
             max-width: 280px;
             padding: 10px 14px;
             border-radius: 10px;
-            border: 2px solid #888888;
+            border: 2px solid #4285f4;
             font-family: monospace;
             word-break: break-all;
             color: #999999;
@@ -748,7 +761,7 @@
             padding: 10px 28px;
             border-radius: 50px;
             border: none;
-            background: #888888;
+            background: #4285f4;
             color: #fff;
             font-weight: 700;
             font-size: 13px;
@@ -757,8 +770,8 @@
         }
         .err .rbtn:hover {
             transform: scale(1.04);
-            box-shadow: 0 0 40px rgba(100,100,100,0.2);
-            background: #666666;
+            box-shadow: 0 0 40px rgba(66, 133, 244, 0.3);
+            background: #ea4335;
         }
         .err .rbtn:active { transform: scale(0.95); }
 
@@ -775,9 +788,9 @@
             z-index: 1000;
             backdrop-filter: blur(10px);
             animation: toastAnim 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-            background: rgba(100,100,100,0.9);
+            background: rgba(66, 133, 244, 0.9);
             color: #fff;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            box-shadow: 0 10px 40px rgba(66, 133, 244, 0.2);
         }
 
         @keyframes toastAnim {
@@ -792,7 +805,7 @@
             left: 0;
             right: 0;
             backdrop-filter: blur(20px);
-            border-top: 2px solid rgba(200,200,200,0.1);
+            border-top: 2px solid rgba(66, 133, 244, 0.1);
             display: flex;
             justify-content: space-around;
             align-items: center;
@@ -831,19 +844,19 @@
         }
 
         .nav-item:hover {
-            color: #666666;
+            color: #4285f4;
             transform: translateY(-2px);
         }
-        body.dark .nav-item:hover { color: #aaaaaa; }
+        body.dark .nav-item:hover { color: #64b5f6; }
 
         .nav-item.active {
-            color: #555555;
+            color: #4285f4;
         }
-        body.dark .nav-item.active { color: #cccccc; }
+        body.dark .nav-item.active { color: #64b5f6; }
 
         .nav-item.active i {
             transform: scale(1.1);
-            text-shadow: 0 0 20px rgba(100,100,100,0.15);
+            text-shadow: 0 0 20px rgba(66, 133, 244, 0.2);
         }
 
         .nav-item.active::before {
@@ -854,7 +867,7 @@
             transform: translateX(-50%);
             width: 24px;
             height: 3px;
-            background: #888888;
+            background: #4285f4;
             border-radius: 0 0 4px 4px;
         }
 
@@ -862,7 +875,7 @@
             position: absolute;
             top: -2px;
             right: 0;
-            background: #888888;
+            background: #ea4335;
             color: white;
             font-size: 7px;
             padding: 1px 5px;
@@ -1071,7 +1084,7 @@
                         <div class="val" id="loc">Tashkent, UZ</div>
                     </div>
                     <div style="display:flex; align-items:center; gap:6px; color:#999999; font-size:10px;">
-                        <i class="fa-solid fa-circle" style="color:#888888; font-size:8px;"></i>
+                        <i class="fa-solid fa-circle" style="color:#4285f4; font-size:8px;"></i>
                         <span id="live">Jonli</span>
                         <span id="lastUpdate" style="font-size:9px; color:#aaaaaa;"></span>
                     </div>
@@ -1107,9 +1120,9 @@
                         <div class="val" id="mapLoc">--</div>
                     </div>
                     <div style="display:flex; gap:10px; font-size:11px; color:#999999;">
-                        <span><i class="fa-solid fa-temperature-high"></i> <span id="mapTemp">--</span>°C</span>
-                        <span><i class="fa-solid fa-wind"></i> <span id="mapWind">--</span> m/s</span>
-                        <span><i class="fa-solid fa-droplet"></i> <span id="mapHum">--</span>%</span>
+                        <span><i class="fa-solid fa-temperature-high" style="color:#ea4335;"></i> <span id="mapTemp">--</span>°C</span>
+                        <span><i class="fa-solid fa-wind" style="color:#4285f4;"></i> <span id="mapWind">--</span> m/s</span>
+                        <span><i class="fa-solid fa-droplet" style="color:#4285f4;"></i> <span id="mapHum">--</span>%</span>
                     </div>
                 </div>
             </div>
@@ -1200,21 +1213,21 @@
                 <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; text-align:center;">
                     <div>
                         <div style="font-size:10px; color:#999999;">AQI</div>
-                        <div style="font-size:28px; font-weight:900;" id="aqiVal">--</div>
+                        <div style="font-size:28px; font-weight:900; color:#4285f4;" id="aqiVal">--</div>
                         <div style="font-size:12px; color:#888888;" id="aqiLbl">--</div>
                     </div>
                     <div>
                         <div style="font-size:10px; color:#999999;">PM2.5</div>
-                        <div style="font-size:20px; font-weight:700;" id="pm25">--</div>
+                        <div style="font-size:20px; font-weight:700; color:#ea4335;" id="pm25">--</div>
                         <div style="font-size:10px; color:#999999;">µg/m³</div>
                     </div>
                     <div>
                         <div style="font-size:10px; color:#999999;">PM10</div>
-                        <div style="font-size:20px; font-weight:700;" id="pm10">--</div>
+                        <div style="font-size:20px; font-weight:700; color:#4285f4;" id="pm10">--</div>
                         <div style="font-size:10px; color:#999999;">µg/m³</div>
                     </div>
                 </div>
-                <div style="margin-top:12px; padding-top:12px; border-top:1px solid rgba(200,200,200,0.08);">
+                <div style="margin-top:12px; padding-top:12px; border-top:1px solid rgba(66, 133, 244, 0.08);">
                     <div style="font-size:11px; color:#999999; text-align:center;" id="aqiDesc">Ma'lumotlar yuklanmoqda...</div>
                 </div>
             </div>
@@ -1278,7 +1291,7 @@
         };
 
         // ============================================
-        // RAIN EFFECT (Black & White)
+        // RAIN EFFECT (Blue & Red)
         // ============================================
         class RainEffect {
             constructor() {
@@ -1296,7 +1309,11 @@
                 this.canvas.height = window.innerHeight;
                 this.drops = [];
                 for (let i = 0; i < this.count; i++) {
-                    const shade = Math.floor(Math.random() * 60 + 40);
+                    // Blue and red colors
+                    const isBlue = Math.random() > 0.5;
+                    const r = isBlue ? 66 : 234;
+                    const g = isBlue ? 133 : 67;
+                    const b = isBlue ? 244 : 53;
                     this.drops.push({
                         x: Math.random() * this.canvas.width,
                         y: Math.random() * this.canvas.height,
@@ -1304,7 +1321,9 @@
                         speed: Math.random() * (ENV.RAIN_SPEED_MAX - ENV.RAIN_SPEED_MIN) + ENV.RAIN_SPEED_MIN,
                         opacity: Math.random() * 0.3 + 0.1,
                         width: Math.random() * 1.5 + 0.5,
-                        shade: shade
+                        r: r,
+                        g: g,
+                        b: b
                     });
                 }
             }
@@ -1316,7 +1335,7 @@
                     this.ctx.beginPath();
                     this.ctx.moveTo(drop.x, drop.y);
                     this.ctx.lineTo(drop.x - 2, drop.y + drop.length);
-                    this.ctx.strokeStyle = `rgba(${drop.shade}, ${drop.shade}, ${drop.shade}, ${drop.opacity})`;
+                    this.ctx.strokeStyle = `rgba(${drop.r}, ${drop.g}, ${drop.b}, ${drop.opacity})`;
                     this.ctx.lineWidth = drop.width;
                     this.ctx.stroke();
                     
@@ -1325,6 +1344,11 @@
                     if (drop.y > this.canvas.height) {
                         drop.y = -drop.length;
                         drop.x = Math.random() * this.canvas.width;
+                        // Randomize color on reset
+                        const isBlue = Math.random() > 0.5;
+                        drop.r = isBlue ? 66 : 234;
+                        drop.g = isBlue ? 133 : 67;
+                        drop.b = isBlue ? 244 : 53;
                     }
                 }
                 
@@ -1361,7 +1385,9 @@
             mapType: 'satellite',
             lat: 41.2995,
             lon: 69.2401,
-            currentView: 'home'
+            currentView: 'home',
+            // Track if weather was loaded from search or auto
+            isSearchResult: false
         };
 
         // ============================================
@@ -1646,7 +1672,7 @@
             }).addTo(S.map);
 
             const icon = L.divIcon({
-                html: '<i class="fa-solid fa-location-dot" style="color:#888888; font-size:28px; text-shadow: 0 0 20px rgba(100,100,100,0.3);"></i>',
+                html: '<i class="fa-solid fa-location-dot" style="color:#4285f4; font-size:28px; text-shadow: 0 0 20px rgba(66,133,244,0.3);"></i>',
                 className: 'custom-marker',
                 iconSize: [28, 28],
                 iconAnchor: [14, 28]
@@ -1663,6 +1689,8 @@
                     const data = await res.json();
                     if (data.name) {
                         D.inp.value = data.name;
+                        // Mark as search result
+                        S.isSearchResult = true;
                         getWeather(data.name);
                         nav('home');
                         showToast(`${data.name} ga o'tildi`);
@@ -1711,7 +1739,7 @@
                     S.marker.setLatLng([lat, lon]);
                 } else {
                     const icon = L.divIcon({
-                        html: '<i class="fa-solid fa-location-dot" style="color:#888888; font-size:28px; text-shadow: 0 0 20px rgba(100,100,100,0.3);"></i>',
+                        html: '<i class="fa-solid fa-location-dot" style="color:#4285f4; font-size:28px; text-shadow: 0 0 20px rgba(66,133,244,0.3);"></i>',
                         className: 'custom-marker',
                         iconSize: [28, 28],
                         iconAnchor: [14, 28]
@@ -1790,15 +1818,19 @@
                 updateFavs();
                 updateMapPosition(w.coord.lat, w.coord.lon, w.name);
 
-                S.logs.unshift({
-                    city: w.name,
-                    temp: Math.round(w.main.temp) + '°C',
-                    status: w.weather[0].description,
-                    time: new Date().toLocaleTimeString()
-                });
-                if (S.logs.length > ENV.MAX_HISTORY) S.logs.pop();
-                localStorage.setItem('weatherLogs', JSON.stringify(S.logs));
-                updateStats();
+                // ONLY save to localStorage if it was a search result
+                if (S.isSearchResult) {
+                    S.logs.unshift({
+                        city: w.name,
+                        temp: Math.round(w.main.temp) + '°C',
+                        status: w.weather[0].description,
+                        time: new Date().toLocaleTimeString()
+                    });
+                    if (S.logs.length > ENV.MAX_HISTORY) S.logs.pop();
+                    localStorage.setItem('weatherLogs', JSON.stringify(S.logs));
+                    updateStats();
+                    S.isSearchResult = false; // Reset flag
+                }
 
                 getAQI(w.coord.lat, w.coord.lon);
 
@@ -1852,11 +1884,11 @@
             
             const aqiVal = aqi.main.aqi;
             const aqiLabels = {
-                1: { label: t('aqiGood'), color: '#666666', desc: t('aqiDescGood') },
-                2: { label: t('aqiFair'), color: '#888888', desc: t('aqiDescFair') },
-                3: { label: t('aqiModerate'), color: '#999999', desc: t('aqiDescModerate') },
-                4: { label: t('aqiPoor'), color: '#aaaaaa', desc: t('aqiDescPoor') },
-                5: { label: t('aqiVeryPoor'), color: '#555555', desc: t('aqiDescVeryPoor') }
+                1: { label: t('aqiGood'), color: '#4285f4', desc: t('aqiDescGood') },
+                2: { label: t('aqiFair'), color: '#64b5f6', desc: t('aqiDescFair') },
+                3: { label: t('aqiModerate'), color: '#ff9800', desc: t('aqiDescModerate') },
+                4: { label: t('aqiPoor'), color: '#ea4335', desc: t('aqiDescPoor') },
+                5: { label: t('aqiVeryPoor'), color: '#c62828', desc: t('aqiDescVeryPoor') }
             };
 
             const info = aqiLabels[aqiVal] || aqiLabels[1];
@@ -1981,12 +2013,12 @@
                     datasets: [{
                         label: 'Harorat °C',
                         data: temps,
-                        borderColor: '#888888',
-                        backgroundColor: 'rgba(136,136,136,0.1)',
+                        borderColor: '#4285f4',
+                        backgroundColor: 'rgba(66,133,244,0.1)',
                         fill: true,
                         tension: 0.4,
-                        pointBackgroundColor: '#666666',
-                        pointBorderColor: '#999999',
+                        pointBackgroundColor: '#ea4335',
+                        pointBorderColor: '#4285f4',
                         pointBorderWidth: 2,
                         pointRadius: 4
                     }]
@@ -2046,9 +2078,10 @@
                 const btn = document.createElement('button');
                 btn.className = 'btn';
                 btn.style.fontSize = '11px';
-                btn.innerHTML = `<i class="fa-solid fa-star" style="color:#888888;"></i> ${city}`;
+                btn.innerHTML = `<i class="fa-solid fa-star" style="color:#4285f4;"></i> ${city}`;
                 btn.onclick = () => {
                     D.inp.value = city;
+                    S.isSearchResult = true;
                     getWeather(city);
                     nav('home');
                 };
@@ -2094,6 +2127,7 @@
         function search() {
             const city = D.inp.value.trim();
             if (city) {
+                S.isSearchResult = true;
                 getWeather(city);
                 nav('home');
             }
@@ -2111,6 +2145,7 @@
                             const data = await res.json();
                             if (data.name) {
                                 D.inp.value = data.name;
+                                S.isSearchResult = true;
                                 getWeather(data.name);
                             }
                         } catch (err) {
@@ -2164,6 +2199,8 @@
         document.body.classList.add('dark');
         D.stars.style.display = 'block';
 
+        // Load default city without saving to history
+        S.isSearchResult = false;
         getWeather(CONFIG.DEFAULT_CITY);
 
         window.addEventListener('online', () => {
@@ -2176,6 +2213,8 @@
 
         setInterval(() => {
             if (navigator.onLine) {
+                // Auto-refresh without saving to history
+                S.isSearchResult = false;
                 getWeather(S.city);
             }
         }, ENV.UPDATE_INTERVAL);
@@ -2185,7 +2224,7 @@
 
         console.log(`✅ ${ENV.APP_NAME} v${ENV.APP_VERSION} ishga tushdi!`);
         console.log(`🌧️ Yomg'ir tomchilari: ${ENV.RAIN_DROP_COUNT} ta`);
-        console.log(`⚪ Oq va kulrang ranglar yoqilgan`);
+        console.log(`🔵 Qizil va ko'k ranglar yoqilgan`);
 
         document.querySelectorAll('.nav-item').forEach(item => {
             item.addEventListener('click', function() {
