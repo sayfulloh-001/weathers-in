@@ -1,0 +1,2199 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Weather App - Rain Edition</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            min-height: 100vh;
+            padding: 12px;
+            padding-bottom: 80px;
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* ===== LIGHT MODE ===== */
+        body.light {
+            background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 50%, #f5f5f5 100%);
+            color: #1a1a1a;
+        }
+
+        body.light .hdr {
+            background: rgba(255,255,255,0.9);
+            border-color: rgba(200,200,200,0.3);
+        }
+
+        body.light .crd,
+        body.light .bcrd,
+        body.light .faq,
+        body.light .fcst-itm,
+        body.light .map-crd {
+            background: rgba(255,255,255,0.85);
+            border-color: rgba(200,200,200,0.2);
+        }
+
+        body.light .src {
+            background: rgba(255,255,255,0.9);
+            border-color: #aaaaaa;
+        }
+        body.light .src input { color: #1a1a1a; }
+        body.light .src input::placeholder { color: #999999; }
+
+        body.light .btn {
+            background: rgba(255,255,255,0.7);
+            color: #555555;
+            border-color: rgba(200,200,200,0.3);
+        }
+        body.light .btn:hover {
+            background: rgba(200,200,200,0.2);
+            color: #1a1a1a;
+        }
+        body.light .btn.act {
+            background: rgba(200,200,200,0.3);
+            color: #333333;
+            border-color: #999999;
+        }
+
+        body.light .bottom-nav {
+            background: rgba(255,255,255,0.95);
+            border-top: 1px solid rgba(200,200,200,0.3);
+        }
+
+        body.light .nav-item {
+            color: #888888;
+        }
+        body.light .nav-item.active {
+            color: #333333;
+        }
+
+        /* ===== DARK MODE ===== */
+        body.dark {
+            background: linear-gradient(145deg, #0a0a0a 0%, #1a1a1a 30%, #2a2a2a 60%, #0a0a0a 100%);
+            color: #e8e8e8;
+        }
+
+        body.dark .hdr {
+            background: rgba(20,20,20,0.9);
+            border-color: rgba(100,100,100,0.2);
+            box-shadow: 0 4px 30px rgba(0,0,0,0.4);
+        }
+
+        body.dark .crd,
+        body.dark .bcrd,
+        body.dark .faq,
+        body.dark .fcst-itm,
+        body.dark .map-crd {
+            background: rgba(30,30,30,0.8);
+            border-color: rgba(100,100,100,0.15);
+            backdrop-filter: blur(20px);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+
+        body.dark .crd:hover,
+        body.dark .bcrd:hover,
+        body.dark .faq:hover,
+        body.dark .fcst-itm:hover,
+        body.dark .map-crd:hover {
+            border-color: rgba(200,200,200,0.3);
+            box-shadow: 0 8px 40px rgba(0,0,0,0.4);
+        }
+
+        body.dark .src {
+            background: rgba(30,30,30,0.7);
+            border-color: #666666;
+        }
+        body.dark .src input { color: #e8e8e8; }
+        body.dark .src input::placeholder { color: #888888; }
+
+        body.dark .btn {
+            background: rgba(40,40,40,0.5);
+            color: #aaaaaa;
+            border-color: rgba(100,100,100,0.2);
+        }
+        body.dark .btn:hover {
+            background: rgba(100,100,100,0.2);
+            color: #e8e8e8;
+            border-color: #888888;
+        }
+        body.dark .btn.act {
+            background: rgba(150,150,150,0.15);
+            color: #cccccc;
+            border-color: #888888;
+        }
+
+        body.dark .bottom-nav {
+            background: rgba(20,20,20,0.95);
+            border-top: 1px solid rgba(100,100,100,0.15);
+        }
+
+        body.dark .nav-item {
+            color: #777777;
+        }
+        body.dark .nav-item.active {
+            color: #cccccc;
+        }
+
+        /* ===== RAIN CANVAS ===== */
+        #rain-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* ===== STARS ===== */
+        body.dark .stars { display: block; }
+        .stars {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+        .star {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle var(--duration) ease-in-out infinite alternate;
+        }
+        @keyframes twinkle {
+            0% { opacity: 0.2; transform: scale(0.8); }
+            100% { opacity: 1; transform: scale(1.2); }
+        }
+
+        /* ===== CONTAINER ===== */
+        .cnt {
+            max-width: 1400px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* ===== HEADER ===== */
+        .hdr {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 16px;
+            backdrop-filter: blur(20px);
+            border-radius: 16px;
+            border: 2px solid rgba(200,200,200,0.15);
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 8px;
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .hdr-l { display: flex; align-items: center; gap: 10px; }
+        .logo { 
+            font-size: 24px; 
+            color: #888888;
+            cursor: pointer; 
+            transition: all 0.4s ease;
+            display: inline-block;
+        }
+        .logo:hover { transform: scale(1.2) rotate(-10deg); }
+        .hdr-t {
+            font-size: 16px;
+            font-weight: 800;
+            color: #888888;
+            letter-spacing: 0.5px;
+        }
+        .hdr-r { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+
+        /* ===== SEARCH ===== */
+        .src {
+            display: flex;
+            align-items: center;
+            border-radius: 50px;
+            padding: 2px 2px 2px 10px;
+            border: 2px solid #888888;
+            transition: all 0.4s ease;
+        }
+        .src:focus-within { box-shadow: 0 0 30px rgba(100,100,100,0.15); }
+        .src input {
+            background: none;
+            border: none;
+            padding: 5px 0;
+            font-size: 12px;
+            outline: none;
+            width: 100px;
+            font-family: inherit;
+        }
+        .src input::placeholder { color: #999999; }
+        .src button {
+            background: #888888;
+            border: none;
+            color: #fff;
+            padding: 5px 12px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.4s ease;
+            font-weight: 600;
+        }
+        .src button:hover { 
+            transform: scale(1.05); 
+            box-shadow: 0 0 30px rgba(100,100,100,0.2);
+            background: #666666;
+        }
+
+        /* ===== BUTTONS ===== */
+        .btn {
+            padding: 6px 12px;
+            border-radius: 50px;
+            border: 2px solid rgba(150,150,150,0.2);
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-family: inherit;
+            background: rgba(200,200,200,0.1);
+            color: #888888;
+        }
+        .btn:hover { 
+            transform: translateY(-2px) scale(1.02); 
+            box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+            background: rgba(150,150,150,0.15);
+            color: #555555;
+        }
+        .btn.act {
+            background: rgba(150,150,150,0.15);
+            color: #555555;
+            border-color: #888888;
+        }
+        .btn.act::before {
+            content: '';
+            width: 3px;
+            height: 16px;
+            background: #888888;
+            border-radius: 4px;
+        }
+
+        /* ===== MAP TYPE SELECTOR ===== */
+        .map-type {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+        }
+        .map-type .btn.sat {
+            color: #666666;
+            border-color: #888888;
+            background: rgba(150,150,150,0.1);
+        }
+        .map-type .btn.sat:hover {
+            background: rgba(150,150,150,0.2);
+        }
+
+        /* ===== GRID ===== */
+        .grd {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        /* ===== CARD ===== */
+        .crd {
+            border-radius: 14px;
+            padding: 14px 16px;
+            border: 2px solid rgba(200,200,200,0.15);
+            transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+            cursor: default;
+            position: relative;
+            overflow: hidden;
+        }
+        .crd:hover { 
+            transform: translateY(-4px) scale(1.02); 
+            box-shadow: 0 10px 40px rgba(0,0,0,0.06);
+            border-color: rgba(150,150,150,0.3);
+        }
+
+        .crd .lbl {
+            font-size: 9px;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin-bottom: 4px;
+            color: #999999;
+        }
+        .crd .lbl i { color: #888888; font-size: 11px; }
+        .crd .val {
+            font-size: 20px;
+            font-weight: 800;
+            color: #444444;
+        }
+        body.dark .crd .val { color: #cccccc; }
+        .crd .sub { font-size: 10px; color: #999999; }
+        .crd .rw { display: flex; justify-content: space-between; align-items: center; }
+        .crd .rw i {
+            font-size: 18px;
+            opacity: 0.3;
+            transition: all 0.4s ease;
+            color: #888888;
+        }
+        .crd:hover .rw i {
+            opacity: 0.8;
+            transform: rotate(15deg) scale(1.1);
+        }
+
+        /* ===== BIG CARD ===== */
+        .bcrd {
+            border-radius: 14px;
+            padding: 16px 20px;
+            border: 2px solid rgba(200,200,200,0.15);
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        .bcrd:hover { 
+            transform: translateY(-3px) scale(1.01);
+            box-shadow: 0 15px 50px rgba(0,0,0,0.06);
+            border-color: rgba(150,150,150,0.3);
+        }
+
+        .bcrd .lbl {
+            font-size: 9px;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            font-weight: 600;
+            color: #999999;
+        }
+        .bcrd .tmp {
+            font-size: 44px;
+            font-weight: 900;
+            line-height: 1;
+            color: #444444;
+        }
+        body.dark .bcrd .tmp { color: #cccccc; }
+        .bcrd .tmp sup {
+            font-size: 18px;
+            font-weight: 600;
+            color: #999999;
+            top: -10px;
+        }
+        .bcrd .dsc {
+            font-size: 13px;
+            font-weight: 500;
+            margin-top: 2px;
+            color: #999999;
+        }
+        .bcrd .rng {
+            display: flex;
+            gap: 12px;
+            font-size: 12px;
+            margin-top: 2px;
+        }
+        .bcrd .rng span {
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            font-weight: 600;
+        }
+        .bcrd .rng .hi { color: #666666; }
+        .bcrd .rng .lo { color: #666666; }
+        body.dark .bcrd .rng .hi { color: #aaaaaa; }
+        body.dark .bcrd .rng .lo { color: #aaaaaa; }
+
+        .bcrd .icn {
+            font-size: 44px;
+            color: #888888;
+            transition: all 0.6s ease;
+            animation: flt 3s ease-in-out infinite;
+            text-shadow: 0 0 40px rgba(100,100,100,0.1);
+        }
+        .bcrd:hover .icn {
+            transform: scale(1.1);
+            text-shadow: 0 0 60px rgba(100,100,100,0.2);
+        }
+
+        @keyframes flt {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-6px); }
+        }
+
+        /* ===== FORECAST ===== */
+        .fcst {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 6px;
+            margin-bottom: 12px;
+        }
+
+        .fcst-itm {
+            border-radius: 10px;
+            padding: 8px 2px;
+            text-align: center;
+            border: 2px solid rgba(200,200,200,0.15);
+            transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+            cursor: default;
+            position: relative;
+            overflow: hidden;
+        }
+        .fcst-itm:hover { 
+            transform: translateY(-4px) scale(1.04);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+            border-color: rgba(150,150,150,0.3);
+        }
+
+        .fcst-itm .day {
+            font-size: 9px;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: #888888;
+        }
+        .fcst-itm .icn {
+            font-size: 18px;
+            margin: 2px 0;
+            color: #888888;
+            transition: all 0.4s ease;
+        }
+        .fcst-itm:hover .icn {
+            transform: scale(1.3) rotate(-15deg);
+        }
+        .fcst-itm .hi {
+            font-size: 13px;
+            font-weight: 700;
+            color: #555555;
+        }
+        body.dark .fcst-itm .hi { color: #cccccc; }
+        .fcst-itm .lo {
+            font-size: 10px;
+            color: #999999;
+        }
+
+        .fcst-itm .date-label {
+            font-size: 8px;
+            color: #999999;
+            display: block;
+            margin-top: 2px;
+        }
+
+        .fcst-itm.today {
+            border-color: #888888;
+            background: rgba(150,150,150,0.08);
+        }
+
+        /* ===== MAP CARD ===== */
+        .map-crd {
+            border-radius: 14px;
+            padding: 12px;
+            border: 2px solid rgba(200,200,200,0.15);
+            margin-bottom: 12px;
+            transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        .map-crd:hover { 
+            transform: translateY(-2px);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.06);
+            border-color: rgba(150,150,150,0.3);
+        }
+
+        #map {
+            width: 100%;
+            height: 300px;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        /* Leaflet dark theme for dark mode */
+        body.dark .leaflet-tile-pane {
+            filter: brightness(0.6) contrast(1.2);
+        }
+        body.dark .leaflet-control-zoom a {
+            background: rgba(40,40,40,0.8);
+            color: #e8e8e8;
+            border-color: rgba(100,100,100,0.3);
+        }
+        body.dark .leaflet-control-zoom a:hover {
+            background: rgba(80,80,80,0.8);
+        }
+
+        /* ===== SECTION TITLE ===== */
+        .stl {
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: #888888;
+        }
+        .stl i {
+            color: #888888;
+            font-size: 15px;
+        }
+
+        /* ===== TABLE ===== */
+        .tbl {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 11px;
+        }
+        .tbl th {
+            text-align: left;
+            padding: 8px 6px;
+            font-weight: 600;
+            font-size: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            border-bottom: 2px solid #888888;
+            color: #888888;
+        }
+        .tbl td {
+            padding: 8px 6px;
+            border-bottom: 1px solid rgba(200,200,200,0.08);
+            transition: all 0.3s ease;
+        }
+        .tbl tr:hover td { background: rgba(150,150,150,0.05); }
+        .tbl .city {
+            font-weight: 700;
+            color: #555555;
+        }
+        body.dark .tbl .city { color: #cccccc; }
+        .tbl .tmp {
+            font-weight: 700;
+            color: #555555;
+        }
+        body.dark .tbl .tmp { color: #cccccc; }
+        .tbl .stt { text-transform: capitalize; color: #888888; }
+
+        /* ===== FAQ ===== */
+        .faq {
+            border-radius: 10px;
+            padding: 10px 14px;
+            margin-bottom: 6px;
+            border: 2px solid rgba(200,200,200,0.15);
+            transition: all 0.5s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .faq:hover { 
+            transform: translateX(4px);
+            border-color: rgba(150,150,150,0.3);
+        }
+
+        .faq .q {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 12px;
+            transition: all 0.3s ease;
+            color: #888888;
+        }
+        .faq .q:hover {
+            color: #555555;
+        }
+        body.dark .faq .q:hover { color: #cccccc; }
+        .faq .q i {
+            transition: all 0.3s ease;
+            font-size: 12px;
+            color: #999999;
+        }
+        .faq .q i.opn {
+            transform: rotate(180deg);
+            color: #666666;
+        }
+
+        .faq .a {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            font-size: 11px;
+            line-height: 1.5;
+            color: #999999;
+        }
+        .faq .a.opn {
+            max-height: 200px;
+            padding-top: 8px;
+            border-top: 2px solid #888888;
+            margin-top: 6px;
+        }
+
+        /* ===== FOOTER ===== */
+        .ftr {
+            text-align: center;
+            font-size: 9px;
+            margin-top: 12px;
+            padding-top: 10px;
+            border-top: 2px solid rgba(200,200,200,0.15);
+            font-weight: 500;
+            letter-spacing: 0.2px;
+            color: #999999;
+        }
+
+        /* ===== LOADING ===== */
+        .lod {
+            display: none;
+            position: fixed;
+            inset: 0;
+            backdrop-filter: blur(8px);
+            z-index: 999;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .lod.shw { display: flex; }
+
+        .lod .spn {
+            width: 40px;
+            height: 40px;
+            border: 4px solid transparent;
+            border-top-color: #888888;
+            border-right-color: #666666;
+            border-bottom-color: #888888;
+            border-radius: 50%;
+            animation: spn 0.8s linear infinite;
+        }
+
+        @keyframes spn { to { transform: rotate(360deg); } }
+
+        .lod p {
+            font-size: 14px;
+            font-weight: 600;
+            color: #888888;
+        }
+
+        /* ===== ERROR ===== */
+        .err {
+            display: none;
+            position: fixed;
+            inset: 0;
+            backdrop-filter: blur(12px);
+            z-index: 998;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            gap: 12px;
+            padding: 24px;
+            text-align: center;
+        }
+        .err.shw { display: flex; }
+
+        .err .icn {
+            font-size: 48px;
+            color: #888888;
+            animation: shk 0.6s ease-in-out;
+            text-shadow: 0 0 60px rgba(100,100,100,0.2);
+        }
+
+        @keyframes shk {
+            0%, 100% { transform: rotate(0deg); }
+            20% { transform: rotate(-15deg); }
+            40% { transform: rotate(15deg); }
+            60% { transform: rotate(-10deg); }
+            80% { transform: rotate(10deg); }
+        }
+
+        .err .ttl {
+            font-size: 20px;
+            font-weight: 800;
+            color: #666666;
+        }
+        body.dark .err .ttl { color: #cccccc; }
+        .err .dsc {
+            font-size: 13px;
+            max-width: 320px;
+            line-height: 1.5;
+            color: #999999;
+        }
+        .err .dtl {
+            font-size: 11px;
+            max-width: 280px;
+            padding: 10px 14px;
+            border-radius: 10px;
+            border: 2px solid #888888;
+            font-family: monospace;
+            word-break: break-all;
+            color: #999999;
+        }
+        .err .rbtn {
+            margin-top: 6px;
+            padding: 10px 28px;
+            border-radius: 50px;
+            border: none;
+            background: #888888;
+            color: #fff;
+            font-weight: 700;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .err .rbtn:hover {
+            transform: scale(1.04);
+            box-shadow: 0 0 40px rgba(100,100,100,0.2);
+            background: #666666;
+        }
+        .err .rbtn:active { transform: scale(0.95); }
+
+        /* ===== TOAST ===== */
+        .toast {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-size: 13px;
+            font-weight: 600;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            animation: toastAnim 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+            background: rgba(100,100,100,0.9);
+            color: #fff;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+        }
+
+        @keyframes toastAnim {
+            0% { opacity: 0; transform: translateX(-50%) translateY(20px) scale(0.9); }
+            100% { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+        }
+
+        /* ===== BOTTOM NAVIGATION ===== */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            backdrop-filter: blur(20px);
+            border-top: 2px solid rgba(200,200,200,0.1);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 6px 0;
+            padding-bottom: env(safe-area-inset-bottom, 6px);
+            z-index: 100;
+            box-shadow: 0 -4px 30px rgba(0,0,0,0.05);
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1px;
+            padding: 4px 10px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #999999;
+            font-size: 9px;
+            font-family: inherit;
+            position: relative;
+        }
+
+        .nav-item i {
+            font-size: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-item span {
+            font-size: 8px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.2px;
+        }
+
+        .nav-item:hover {
+            color: #666666;
+            transform: translateY(-2px);
+        }
+        body.dark .nav-item:hover { color: #aaaaaa; }
+
+        .nav-item.active {
+            color: #555555;
+        }
+        body.dark .nav-item.active { color: #cccccc; }
+
+        .nav-item.active i {
+            transform: scale(1.1);
+            text-shadow: 0 0 20px rgba(100,100,100,0.15);
+        }
+
+        .nav-item.active::before {
+            content: '';
+            position: absolute;
+            top: -1px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 24px;
+            height: 3px;
+            background: #888888;
+            border-radius: 0 0 4px 4px;
+        }
+
+        .nav-item .badge {
+            position: absolute;
+            top: -2px;
+            right: 0;
+            background: #888888;
+            color: white;
+            font-size: 7px;
+            padding: 1px 5px;
+            border-radius: 10px;
+            font-weight: 700;
+            min-width: 16px;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 1024px) {
+            .grd { grid-template-columns: 1fr 1fr; }
+            #map { height: 300px; }
+        }
+
+        @media (max-width: 768px) {
+            .hdr {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 6px;
+            }
+            .hdr-r { justify-content: space-between; }
+            .src input { width: 80px; }
+            .grd { grid-template-columns: 1fr 1fr; gap: 8px; }
+            .bcrd {
+                flex-direction: column;
+                text-align: center;
+                gap: 10px;
+            }
+            .bcrd .tmp { font-size: 36px; }
+            .bcrd .icn { font-size: 36px; }
+            .fcst { grid-template-columns: repeat(4, 1fr); gap: 4px; }
+            #map { height: 250px; }
+            .bottom-nav { padding: 4px 0; }
+            .nav-item { padding: 2px 8px; }
+            .nav-item i { font-size: 18px; }
+            .nav-item span { font-size: 7px; }
+        }
+
+        @media (max-width: 480px) {
+            body { padding: 8px; padding-bottom: 70px; }
+            .hdr { padding: 10px 12px; }
+            .src input { width: 60px; font-size: 11px; }
+            .src button { padding: 4px 8px; font-size: 11px; }
+            .grd { grid-template-columns: 1fr 1fr; gap: 6px; }
+            .crd { padding: 10px 12px; }
+            .crd .val { font-size: 16px; }
+            .bcrd { padding: 12px 16px; }
+            .bcrd .tmp { font-size: 32px; }
+            .bcrd .tmp sup { font-size: 16px; top: -8px; }
+            .bcrd .icn { font-size: 32px; }
+            .fcst { grid-template-columns: repeat(4, 1fr); gap: 4px; }
+            .fcst-itm { padding: 6px 2px; }
+            .fcst-itm .icn { font-size: 14px; }
+            .fcst-itm .hi { font-size: 11px; }
+            .fcst-itm .lo { font-size: 9px; }
+            .fcst-itm .date-label { font-size: 7px; }
+            .btn { padding: 4px 10px; font-size: 10px; }
+            #map { height: 200px; }
+            .bottom-nav { padding: 4px 0; }
+            .nav-item i { font-size: 16px; }
+            .nav-item span { font-size: 6px; }
+            .nav-item { padding: 2px 6px; }
+        }
+
+        @media (max-width: 360px) {
+            .grd { grid-template-columns: 1fr; }
+            .fcst { grid-template-columns: repeat(3, 1fr); }
+            .src input { width: 50px; }
+            #map { height: 180px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ====== RAIN CANVAS ====== -->
+    <canvas id="rain-canvas"></canvas>
+
+    <!-- ====== STARS ====== -->
+    <div class="stars" id="stars"></div>
+
+    <!-- ====== LOADING ====== -->
+    <div class="lod" id="lod">
+        <div class="spn"></div>
+        <p id="lodTxt">Yuklanmoqda...</p>
+    </div>
+
+    <!-- ====== ERROR ====== -->
+    <div class="err" id="err">
+        <div class="icn"><i class="fa-solid fa-wifi-slash"></i></div>
+        <div class="ttl" id="errTtl">Xatolik</div>
+        <div class="dsc" id="errDsc">Iltimos, qayta urinib ko'ring</div>
+        <div class="dtl" id="errDtl"></div>
+        <button class="rbtn" onclick="retry()"><i class="fa-solid fa-rotate"></i> Qayta urinish</button>
+    </div>
+
+    <!-- ====== MAIN ====== -->
+    <div class="cnt">
+
+        <!-- HEADER -->
+        <div class="hdr">
+            <div class="hdr-l">
+                <div class="logo"><i class="fa-solid fa-cloud-rain"></i></div>
+                <div class="hdr-t">Weather App</div>
+            </div>
+            <div class="hdr-r">
+                <div class="src">
+                    <input type="text" id="inp" placeholder="Shahar..." />
+                    <button onclick="search()"><i class="fa-solid fa-search"></i></button>
+                </div>
+                <button class="btn" onclick="getLoc()"><i class="fa-solid fa-location-dot"></i></button>
+                <button class="btn" onclick="toggleTheme()"><i class="fa-solid fa-moon" id="thmIc"></i></button>
+                <select class="btn" id="langSel" onchange="chLang()">
+                    <option value="uz">UZ</option>
+                    <option value="ru">RU</option>
+                    <option value="en">EN</option>
+                </select>
+                <button class="btn" onclick="addFav()"><i class="fa-solid fa-star"></i></button>
+            </div>
+        </div>
+
+        <!-- ====== VIEW: HOME ====== -->
+        <div id="v-home">
+
+            <div class="bcrd">
+                <div class="lft">
+                    <div class="lbl">Bugungi ob-havo</div>
+                    <div class="tmp"><span id="tmp">--</span><sup>°C</sup></div>
+                    <div class="dsc" id="dsc">Kutilmoqda</div>
+                    <div class="rng">
+                        <span class="hi"><i class="fa-solid fa-arrow-up"></i> <span id="hi">--</span>°</span>
+                        <span class="lo"><i class="fa-solid fa-arrow-down"></i> <span id="lo">--</span>°</span>
+                    </div>
+                </div>
+                <div class="icn" id="icn"><i class="fa-solid fa-cloud"></i></div>
+            </div>
+
+            <div class="grd">
+                <div class="crd">
+                    <div class="lbl"><i class="fa-solid fa-wind"></i> Shamol</div>
+                    <div class="rw">
+                        <div><span class="val" id="wnd">--</span> <span class="sub">m/s</span></div>
+                        <i class="fa-solid fa-wind"></i>
+                    </div>
+                </div>
+                <div class="crd">
+                    <div class="lbl"><i class="fa-solid fa-sun"></i> UV</div>
+                    <div class="rw">
+                        <div><span class="val" id="uv">--</span> <span class="sub" id="uvLbl">--</span></div>
+                        <i class="fa-solid fa-sun"></i>
+                    </div>
+                </div>
+                <div class="crd">
+                    <div class="lbl"><i class="fa-solid fa-droplet"></i> Namlik</div>
+                    <div class="rw">
+                        <div><span class="val" id="hum">--</span> <span class="sub">%</span></div>
+                        <i class="fa-solid fa-droplet"></i>
+                    </div>
+                </div>
+                <div class="crd">
+                    <div class="lbl"><i class="fa-solid fa-temperature-high"></i> His etilgan</div>
+                    <div class="rw">
+                        <div><span class="val" id="feel">--</span> <span class="sub">°C</span></div>
+                        <i class="fa-solid fa-temperature-high"></i>
+                    </div>
+                </div>
+                <div class="crd">
+                    <div class="lbl"><i class="fa-solid fa-cloud-rain"></i> Yomg'ir</div>
+                    <div class="rw">
+                        <div><span class="val" id="rain">0.00</span> <span class="sub">mm</span></div>
+                        <i class="fa-solid fa-cloud-rain"></i>
+                    </div>
+                </div>
+                <div class="crd">
+                    <div class="lbl"><i class="fa-solid fa-clock"></i> Quyosh</div>
+                    <div class="rw">
+                        <div>
+                            <span class="val" id="rise">--</span>
+                            <span class="sub" id="set">--</span>
+                        </div>
+                        <i class="fa-solid fa-clock"></i>
+                    </div>
+                </div>
+                <div class="crd">
+                    <div class="lbl"><i class="fa-solid fa-gauge-high"></i> Bosim</div>
+                    <div class="rw">
+                        <div><span class="val" id="prs">--</span> <span class="sub">hPa</span></div>
+                        <i class="fa-solid fa-gauge-high"></i>
+                    </div>
+                </div>
+                <div class="crd">
+                    <div class="lbl"><i class="fa-solid fa-eye"></i> Ko'rinish</div>
+                    <div class="rw">
+                        <div><span class="val" id="vis">--</span> <span class="sub">km</span></div>
+                        <i class="fa-solid fa-eye"></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stl"><i class="fa-solid fa-calendar-week"></i> <span id="fcstTtl">7 kunlik prognoz</span></div>
+            <div class="fcst" id="fcst"></div>
+
+            <div class="crd" style="margin-bottom:12px;">
+                <div class="rw">
+                    <div>
+                        <div class="lbl"><i class="fa-solid fa-map-pin"></i> Joylashuv</div>
+                        <div class="val" id="loc">Tashkent, UZ</div>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:6px; color:#999999; font-size:10px;">
+                        <i class="fa-solid fa-circle" style="color:#888888; font-size:8px;"></i>
+                        <span id="live">Jonli</span>
+                        <span id="lastUpdate" style="font-size:9px; color:#aaaaaa;"></span>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ====== VIEW: MAP (SATELLITE) ====== -->
+        <div id="v-map" style="display:none;">
+            <div class="stl"><i class="fa-solid fa-satellite"></i> Sun'iy yo'ldosh xaritasi</div>
+            
+            <div class="map-type">
+                <button class="btn sat" onclick="changeMapType('satellite')" id="satBtn">
+                    <i class="fa-solid fa-satellite"></i> Yo'ldosh
+                </button>
+                <button class="btn" onclick="changeMapType('street')" id="streetBtn">
+                    <i class="fa-solid fa-map"></i> Ko'cha
+                </button>
+                <button class="btn" onclick="changeMapType('dark')" id="darkBtn">
+                    <i class="fa-solid fa-moon"></i> Tungi
+                </button>
+            </div>
+
+            <div class="map-crd">
+                <div id="map"></div>
+            </div>
+
+            <div class="crd" style="margin-top:10px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px;">
+                    <div>
+                        <div class="lbl"><i class="fa-solid fa-location-dot"></i> Hozirgi joy</div>
+                        <div class="val" id="mapLoc">--</div>
+                    </div>
+                    <div style="display:flex; gap:10px; font-size:11px; color:#999999;">
+                        <span><i class="fa-solid fa-temperature-high"></i> <span id="mapTemp">--</span>°C</span>
+                        <span><i class="fa-solid fa-wind"></i> <span id="mapWind">--</span> m/s</span>
+                        <span><i class="fa-solid fa-droplet"></i> <span id="mapHum">--</span>%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ====== VIEW: STATS ====== -->
+        <div id="v-stats" style="display:none;">
+            <div class="stl"><i class="fa-solid fa-clock-rotate-left"></i> Qidiruv tarixi</div>
+            <div style="overflow-x:auto;">
+                <table class="tbl">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Shahar</th>
+                            <th>Harorat</th>
+                            <th>Holat</th>
+                            <th>Vaqt</th>
+                        </tr>
+                    </thead>
+                    <tbody id="statsBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ====== VIEW: HELP ====== -->
+        <div id="v-help" style="display:none;">
+            <div class="stl"><i class="fa-solid fa-circle-question"></i> Yordam & FAQ</div>
+
+            <div class="faq">
+                <div class="q" onclick="tog(this)">
+                    <span>5 kunlik prognoz qanchalik aniq?</span>
+                    <i class="fa-solid fa-chevron-down"></i>
+                </div>
+                <div class="a">Prognoz xalqaro modellar asosida hisoblanadi. 48 soat uchun aniqlik 95% ni tashkil etadi.</div>
+            </div>
+
+            <div class="faq">
+                <div class="q" onclick="tog(this)">
+                    <span>Yomg'ir yog'ishini qanday bilsam bo'ladi?</span>
+                    <i class="fa-solid fa-chevron-down"></i>
+                </div>
+                <div class="a">"Yomg'ir" kartasida real vaqtda yomg'ir miqdori ko'rsatiladi.</div>
+            </div>
+
+            <div class="faq">
+                <div class="q" onclick="tog(this)">
+                    <span>Ma'lumotlar qaysi manbadan olinadi?</span>
+                    <i class="fa-solid fa-chevron-down"></i>
+                </div>
+                <div class="a">OpenWeather global meteo-stansiyalar tarmog'idan real vaqtda olinadi.</div>
+            </div>
+
+            <div class="faq">
+                <div class="q" onclick="tog(this)">
+                    <span>Ilova oflayn rejimda ishlaydimi?</span>
+                    <i class="fa-solid fa-chevron-down"></i>
+                </div>
+                <div class="a">Yangi ma'lumotlar uchun internet kerak. Tarix esa qurilmada saqlanadi.</div>
+            </div>
+
+            <div class="faq">
+                <div class="q" onclick="tog(this)">
+                    <span>Havo sifati qanday o'lchanadi?</span>
+                    <i class="fa-solid fa-chevron-down"></i>
+                </div>
+                <div class="a">Havo sifati indeksi (AQI) PM2.5, PM10, NO2, SO2, CO, O3 kabi ifloslantiruvchi moddalar asosida hisoblanadi.</div>
+            </div>
+        </div>
+
+        <!-- ====== VIEW: CHART ====== -->
+        <div id="v-chart" style="display:none;">
+            <div class="stl"><i class="fa-solid fa-chart-line"></i> Harorat grafigi</div>
+            <div class="crd" style="padding:16px;">
+                <canvas id="chart"></canvas>
+            </div>
+        </div>
+
+        <!-- ====== VIEW: FAVORITES ====== -->
+        <div id="v-fav" style="display:none;">
+            <div class="stl"><i class="fa-solid fa-star"></i> Sevimli shaharlar</div>
+            <div id="favList" style="display:flex; flex-wrap:wrap; gap:8px;"></div>
+        </div>
+
+        <!-- ====== VIEW: AQI ====== -->
+        <div id="v-aqi" style="display:none;">
+            <div class="stl"><i class="fa-solid fa-wind"></i> Havo sifati indeksi</div>
+            <div class="crd" style="padding:16px;">
+                <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; text-align:center;">
+                    <div>
+                        <div style="font-size:10px; color:#999999;">AQI</div>
+                        <div style="font-size:28px; font-weight:900;" id="aqiVal">--</div>
+                        <div style="font-size:12px; color:#888888;" id="aqiLbl">--</div>
+                    </div>
+                    <div>
+                        <div style="font-size:10px; color:#999999;">PM2.5</div>
+                        <div style="font-size:20px; font-weight:700;" id="pm25">--</div>
+                        <div style="font-size:10px; color:#999999;">µg/m³</div>
+                    </div>
+                    <div>
+                        <div style="font-size:10px; color:#999999;">PM10</div>
+                        <div style="font-size:20px; font-weight:700;" id="pm10">--</div>
+                        <div style="font-size:10px; color:#999999;">µg/m³</div>
+                    </div>
+                </div>
+                <div style="margin-top:12px; padding-top:12px; border-top:1px solid rgba(200,200,200,0.08);">
+                    <div style="font-size:11px; color:#999999; text-align:center;" id="aqiDesc">Ma'lumotlar yuklanmoqda...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FOOTER -->
+        <div class="ftr">© 2026 Weather App — Premium | <span id="ver">v3.0</span></div>
+
+    </div>
+
+    <!-- ====== BOTTOM NAVIGATION ====== -->
+    <nav class="bottom-nav" id="bottomNav">
+        <button class="nav-item active" data-view="home" onclick="nav('home')">
+            <i class="fa-solid fa-house"></i>
+            <span>Bosh</span>
+        </button>
+        <button class="nav-item" data-view="map" onclick="nav('map')">
+            <i class="fa-solid fa-map"></i>
+            <span>Xarita</span>
+        </button>
+        <button class="nav-item" data-view="chart" onclick="nav('chart')">
+            <i class="fa-solid fa-chart-line"></i>
+            <span>Grafik</span>
+        </button>
+        <button class="nav-item" data-view="fav" onclick="nav('fav')">
+            <i class="fa-solid fa-star"></i>
+            <span>Sevimli</span>
+            <span class="badge" id="favBadge" style="display:none;">0</span>
+        </button>
+        <button class="nav-item" data-view="aqi" onclick="nav('aqi')">
+            <i class="fa-solid fa-wind"></i>
+            <span>Havo</span>
+        </button>
+        <button class="nav-item" data-view="help" onclick="nav('help')">
+            <i class="fa-solid fa-circle-question"></i>
+            <span>Yordam</span>
+        </button>
+    </nav>
+
+    <script>
+        // ============================================
+        // ENVIRONMENT VARIABLES
+        // ============================================
+        const ENV = {
+            API_KEY: '3f9202de3d0b717cf8fea88c6d452353',
+            API_URL: 'https://api.openweathermap.org/data/2.5',
+            DEFAULT_CITY: 'Tashkent',
+            UNITS: 'metric',
+            DEFAULT_LANG: 'uz',
+            MAP_TILE_SATELLITE: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+            MAP_TILE_STREET: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+            MAP_TILE_DARK: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+            APP_NAME: 'Weather App',
+            APP_VERSION: '3.0',
+            UPDATE_INTERVAL: 600000,
+            MAX_HISTORY: 20,
+            MAX_FAVORITES: 10,
+            RAIN_DROP_COUNT: 250,
+            RAIN_SPEED_MIN: 3,
+            RAIN_SPEED_MAX: 10
+        };
+
+        // ============================================
+        // RAIN EFFECT (Black & White)
+        // ============================================
+        class RainEffect {
+            constructor() {
+                this.canvas = document.getElementById('rain-canvas');
+                this.ctx = this.canvas.getContext('2d');
+                this.drops = [];
+                this.count = ENV.RAIN_DROP_COUNT || 250;
+                this.setup();
+                this.animate();
+                window.addEventListener('resize', () => this.setup());
+            }
+
+            setup() {
+                this.canvas.width = window.innerWidth;
+                this.canvas.height = window.innerHeight;
+                this.drops = [];
+                for (let i = 0; i < this.count; i++) {
+                    const shade = Math.floor(Math.random() * 60 + 40);
+                    this.drops.push({
+                        x: Math.random() * this.canvas.width,
+                        y: Math.random() * this.canvas.height,
+                        length: Math.random() * 16 + 8,
+                        speed: Math.random() * (ENV.RAIN_SPEED_MAX - ENV.RAIN_SPEED_MIN) + ENV.RAIN_SPEED_MIN,
+                        opacity: Math.random() * 0.3 + 0.1,
+                        width: Math.random() * 1.5 + 0.5,
+                        shade: shade
+                    });
+                }
+            }
+
+            animate() {
+                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                
+                for (const drop of this.drops) {
+                    this.ctx.beginPath();
+                    this.ctx.moveTo(drop.x, drop.y);
+                    this.ctx.lineTo(drop.x - 2, drop.y + drop.length);
+                    this.ctx.strokeStyle = `rgba(${drop.shade}, ${drop.shade}, ${drop.shade}, ${drop.opacity})`;
+                    this.ctx.lineWidth = drop.width;
+                    this.ctx.stroke();
+                    
+                    drop.y += drop.speed;
+                    drop.x -= 0.5;
+                    if (drop.y > this.canvas.height) {
+                        drop.y = -drop.length;
+                        drop.x = Math.random() * this.canvas.width;
+                    }
+                }
+                
+                requestAnimationFrame(() => this.animate());
+            }
+        }
+
+        // ============================================
+        // CONFIG
+        // ============================================
+        const CONFIG = {
+            API_KEY: ENV.API_KEY,
+            API_URL: ENV.API_URL,
+            DEFAULT_CITY: ENV.DEFAULT_CITY,
+            UNITS: ENV.UNITS,
+            LANG: ENV.DEFAULT_LANG
+        };
+
+        // ============================================
+        // STATE
+        // ============================================
+        const S = {
+            city: CONFIG.DEFAULT_CITY,
+            lang: CONFIG.LANG,
+            isDark: true,
+            logs: JSON.parse(localStorage.getItem('weatherLogs') || '[]'),
+            favs: JSON.parse(localStorage.getItem('favs') || '[]'),
+            w: null,
+            f: null,
+            aqi: null,
+            chart: null,
+            map: null,
+            marker: null,
+            mapType: 'satellite',
+            lat: 41.2995,
+            lon: 69.2401,
+            currentView: 'home'
+        };
+
+        // ============================================
+        // INIT RAIN
+        // ============================================
+        const rain = new RainEffect();
+
+        // ============================================
+        // DOM
+        // ============================================
+        const $ = id => document.getElementById(id);
+        const D = {
+            tmp: $('tmp'),
+            dsc: $('dsc'),
+            hi: $('hi'),
+            lo: $('lo'),
+            icn: $('icn'),
+            wnd: $('wnd'),
+            uv: $('uv'),
+            uvLbl: $('uvLbl'),
+            hum: $('hum'),
+            feel: $('feel'),
+            rain: $('rain'),
+            rise: $('rise'),
+            set: $('set'),
+            prs: $('prs'),
+            vis: $('vis'),
+            loc: $('loc'),
+            live: $('live'),
+            lastUpdate: $('lastUpdate'),
+            fcst: $('fcst'),
+            statsBody: $('statsBody'),
+            inp: $('inp'),
+            lod: $('lod'),
+            lodTxt: $('lodTxt'),
+            err: $('err'),
+            errTtl: $('errTtl'),
+            errDsc: $('errDsc'),
+            errDtl: $('errDtl'),
+            thmIc: $('thmIc'),
+            langSel: $('langSel'),
+            fcstTtl: $('fcstTtl'),
+            chart: $('chart'),
+            favList: $('favList'),
+            aqiVal: $('aqiVal'),
+            aqiLbl: $('aqiLbl'),
+            pm25: $('pm25'),
+            pm10: $('pm10'),
+            aqiDesc: $('aqiDesc'),
+            ver: $('ver'),
+            stars: $('stars'),
+            mapLoc: $('mapLoc'),
+            mapTemp: $('mapTemp'),
+            mapWind: $('mapWind'),
+            mapHum: $('mapHum'),
+            favBadge: $('favBadge')
+        };
+
+        // ============================================
+        // DICTIONARY
+        // ============================================
+        const DICT = {
+            uz: {
+                loading: 'Yuklanmoqda...',
+                forecast: '7 kunlik prognoz',
+                live: 'Jonli',
+                notFound: 'Shahar topilmadi!',
+                noNet: 'Internet aloqasi yo\'q',
+                retry: 'Qayta urinib ko\'ring',
+                aqiGood: 'Yaxshi',
+                aqiFair: 'O\'rtacha',
+                aqiModerate: 'Qoniqarli',
+                aqiPoor: 'Yomon',
+                aqiVeryPoor: 'Juda yomon',
+                aqiDescGood: 'Havo juda toza, sog\'liq uchun xavfsiz',
+                aqiDescFair: 'Havo nisbatan toza, sezgir odamlar ehtiyot bo\'lishi kerak',
+                aqiDescModerate: 'Havo ifloslangan, sezgir odamlar tashqariga chiqmasligi kerak',
+                aqiDescPoor: 'Havo juda ifloslangan, barcha odamlar tashqariga chiqmasligi kerak',
+                aqiDescVeryPoor: 'Havo o\'ta ifloslangan, favqulodda holat'
+            },
+            ru: {
+                loading: 'Загрузка...',
+                forecast: 'Прогноз на 7 дней',
+                live: 'В прямом эфире',
+                notFound: 'Город не найден!',
+                noNet: 'Нет интернета',
+                retry: 'Попробуйте снова',
+                aqiGood: 'Хорошо',
+                aqiFair: 'Средне',
+                aqiModerate: 'Удовл.',
+                aqiPoor: 'Плохо',
+                aqiVeryPoor: 'Очень плохо',
+                aqiDescGood: 'Воздух чистый, безопасно для здоровья',
+                aqiDescFair: 'Воздух относительно чистый, чувствительным людям нужно быть осторожными',
+                aqiDescModerate: 'Воздух загрязнен, чувствительным людям лучше не выходить',
+                aqiDescPoor: 'Воздух сильно загрязнен, всем лучше не выходить',
+                aqiDescVeryPoor: 'Воздух критически загрязнен, чрезвычайная ситуация'
+            },
+            en: {
+                loading: 'Loading...',
+                forecast: '7 Days Forecast',
+                live: 'Live',
+                notFound: 'City not found!',
+                noNet: 'No Internet',
+                retry: 'Please try again',
+                aqiGood: 'Good',
+                aqiFair: 'Fair',
+                aqiModerate: 'Moderate',
+                aqiPoor: 'Poor',
+                aqiVeryPoor: 'Very Poor',
+                aqiDescGood: 'Air is clean, safe for health',
+                aqiDescFair: 'Air is relatively clean, sensitive people should be careful',
+                aqiDescModerate: 'Air is polluted, sensitive people should stay indoors',
+                aqiDescPoor: 'Air is heavily polluted, everyone should stay indoors',
+                aqiDescVeryPoor: 'Air is critically polluted, emergency situation'
+            }
+        };
+
+        function t(key) {
+            return DICT[S.lang]?.[key] || DICT.uz[key] || key;
+        }
+
+        // ============================================
+        // STARS
+        // ============================================
+        function createStars() {
+            D.stars.innerHTML = '';
+            for (let i = 0; i < 100; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.width = (Math.random() * 2 + 1) + 'px';
+                star.style.height = star.style.width;
+                star.style.setProperty('--duration', (Math.random() * 3 + 2) + 's');
+                star.style.animationDelay = (Math.random() * 5) + 's';
+                D.stars.appendChild(star);
+            }
+        }
+        createStars();
+
+        // ============================================
+        // GET WEEK DAYS (REAL TIME)
+        // ============================================
+        function getWeekDays() {
+            const days = ['Yak', 'Dush', 'Sesh', 'Chor', 'Pay', 'Jum', 'Shan'];
+            const today = new Date().getDay();
+            const result = [];
+            for (let i = 0; i < 7; i++) {
+                const dayIndex = (today + i) % 7;
+                result.push(days[dayIndex]);
+            }
+            return result;
+        }
+
+        function getDateLabels() {
+            const today = new Date();
+            const result = [];
+            for (let i = 0; i < 7; i++) {
+                const date = new Date(today);
+                date.setDate(today.getDate() + i);
+                const day = String(date.getDate()).padStart(2, '0');
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                result.push(`${day}.${month}`);
+            }
+            return result;
+        }
+
+        // ============================================
+        // NAVIGATION
+        // ============================================
+        function nav(v) {
+            S.currentView = v;
+            const views = ['home', 'map', 'stats', 'help', 'chart', 'fav', 'aqi'];
+            views.forEach(id => {
+                const el = document.getElementById('v-' + id);
+                if (el) el.style.display = id === v ? 'block' : 'none';
+            });
+            
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.toggle('active', item.dataset.view === v);
+            });
+            
+            if (v === 'aqi') updateAQI();
+            if (v === 'map') setTimeout(initMap, 300);
+            updateFavBadge();
+        }
+
+        // ============================================
+        // FAVORITE BADGE
+        // ============================================
+        function updateFavBadge() {
+            if (D.favBadge) {
+                const count = S.favs.length;
+                if (count > 0) {
+                    D.favBadge.style.display = 'block';
+                    D.favBadge.textContent = count;
+                } else {
+                    D.favBadge.style.display = 'none';
+                }
+            }
+        }
+
+        // ============================================
+        // FAQ
+        // ============================================
+        function tog(el) {
+            const a = el.nextElementSibling;
+            const i = el.querySelector('i');
+            a.classList.toggle('opn');
+            i.classList.toggle('opn');
+        }
+
+        // ============================================
+        // THEME
+        // ============================================
+        function toggleTheme() {
+            S.isDark = !S.isDark;
+            document.body.classList.remove('light', 'dark');
+            document.body.classList.add(S.isDark ? 'dark' : 'light');
+            D.thmIc.className = S.isDark ? 'fa-solid fa-moon' : 'fa-solid fa-sun';
+            D.stars.style.display = S.isDark ? 'block' : 'none';
+            
+            if (S.map) {
+                updateMapTiles();
+            }
+            
+            if (S.chart) {
+                const isDark = S.isDark;
+                S.chart.options.plugins.legend.labels.color = isDark ? '#e8e8e8' : '#1a1a1a';
+                S.chart.options.scales.y.ticks.color = isDark ? '#888888' : '#555555';
+                S.chart.options.scales.x.ticks.color = isDark ? '#888888' : '#555555';
+                S.chart.options.scales.y.grid.color = isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)';
+                S.chart.options.scales.x.grid.color = isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)';
+                S.chart.update();
+            }
+        }
+
+        // ============================================
+        // MAP TYPE
+        // ============================================
+        function changeMapType(type) {
+            S.mapType = type;
+            
+            document.querySelectorAll('.map-type .btn').forEach(b => {
+                b.classList.remove('sat');
+            });
+            if (type === 'satellite') document.getElementById('satBtn').classList.add('sat');
+            else if (type === 'street') document.getElementById('streetBtn').classList.add('sat');
+            else if (type === 'dark') document.getElementById('darkBtn').classList.add('sat');
+            
+            updateMapTiles();
+        }
+
+        // ============================================
+        // MAP
+        // ============================================
+        let mapInitialized = false;
+
+        function initMap() {
+            if (mapInitialized && S.map) {
+                S.map.invalidateSize();
+                return;
+            }
+
+            const mapContainer = document.getElementById('map');
+            if (!mapContainer) return;
+
+            let tileUrl = getTileUrl();
+
+            S.map = L.map('map', {
+                center: [S.lat || 41.2995, S.lon || 69.2401],
+                zoom: 10,
+                zoomControl: true,
+                attributionControl: false
+            });
+
+            L.tileLayer(tileUrl, {
+                attribution: '&copy; OpenStreetMap',
+                maxZoom: 19,
+                maxNativeZoom: 19
+            }).addTo(S.map);
+
+            const icon = L.divIcon({
+                html: '<i class="fa-solid fa-location-dot" style="color:#888888; font-size:28px; text-shadow: 0 0 20px rgba(100,100,100,0.3);"></i>',
+                className: 'custom-marker',
+                iconSize: [28, 28],
+                iconAnchor: [14, 28]
+            });
+
+            S.marker = L.marker([S.lat || 41.2995, S.lon || 69.2401], { icon: icon }).addTo(S.map);
+
+            S.map.on('click', async function(e) {
+                const { lat, lng } = e.latlng;
+                try {
+                    const res = await fetch(
+                        `${CONFIG.API_URL}/weather?lat=${lat}&lon=${lng}&appid=${CONFIG.API_KEY}&units=${CONFIG.UNITS}`
+                    );
+                    const data = await res.json();
+                    if (data.name) {
+                        D.inp.value = data.name;
+                        getWeather(data.name);
+                        nav('home');
+                        showToast(`${data.name} ga o'tildi`);
+                    }
+                } catch (err) {
+                    showErr('Xatolik', 'Joylashuv ma\'lumotlarini olishda xatolik', err.message);
+                }
+            });
+
+            mapInitialized = true;
+        }
+
+        function getTileUrl() {
+            const isDark = S.isDark;
+            
+            if (S.mapType === 'satellite') {
+                return ENV.MAP_TILE_SATELLITE;
+            } else if (S.mapType === 'street') {
+                return isDark ? ENV.MAP_TILE_DARK : ENV.MAP_TILE_STREET;
+            } else if (S.mapType === 'dark') {
+                return ENV.MAP_TILE_DARK;
+            }
+            
+            return isDark ? ENV.MAP_TILE_DARK : ENV.MAP_TILE_STREET;
+        }
+
+        function updateMapTiles() {
+            if (!S.map) return;
+            
+            const tileUrl = getTileUrl();
+            
+            S.map.eachLayer(layer => {
+                if (layer instanceof L.TileLayer) {
+                    layer.setUrl(tileUrl);
+                }
+            });
+        }
+
+        function updateMapPosition(lat, lon, name) {
+            S.lat = lat;
+            S.lon = lon;
+            
+            if (S.map) {
+                S.map.setView([lat, lon], 12);
+                if (S.marker) {
+                    S.marker.setLatLng([lat, lon]);
+                } else {
+                    const icon = L.divIcon({
+                        html: '<i class="fa-solid fa-location-dot" style="color:#888888; font-size:28px; text-shadow: 0 0 20px rgba(100,100,100,0.3);"></i>',
+                        className: 'custom-marker',
+                        iconSize: [28, 28],
+                        iconAnchor: [14, 28]
+                    });
+                    S.marker = L.marker([lat, lon], { icon: icon }).addTo(S.map);
+                }
+            }
+            
+            D.mapLoc.textContent = name || '--';
+            if (S.w) {
+                D.mapTemp.textContent = Math.round(S.w.main.temp);
+                D.mapWind.textContent = S.w.wind.speed.toFixed(1);
+                D.mapHum.textContent = S.w.main.humidity;
+            }
+        }
+
+        // ============================================
+        // LOADING / ERROR
+        // ============================================
+        function showLod(txt) {
+            D.lodTxt.textContent = txt || t('loading');
+            D.lod.classList.add('shw');
+        }
+
+        function hideLod() {
+            D.lod.classList.remove('shw');
+        }
+
+        function showErr(ttl, dsc, dtl) {
+            D.errTtl.textContent = ttl || t('noNet');
+            D.errDsc.textContent = dsc || t('retry');
+            D.errDtl.textContent = dtl || '';
+            D.err.classList.add('shw');
+        }
+
+        function hideErr() {
+            D.err.classList.remove('shw');
+        }
+
+        function retry() {
+            hideErr();
+            getWeather(S.city);
+        }
+
+        // ============================================
+        // API - WEATHER
+        // ============================================
+        async function getWeather(city) {
+            if (!city) return;
+            hideErr();
+            showLod(t('loading'));
+
+            try {
+                const url = `${CONFIG.API_URL}/weather?q=${encodeURIComponent(city)}&appid=${CONFIG.API_KEY}&units=${CONFIG.UNITS}&lang=${S.lang}`;
+                const furl = `${CONFIG.API_URL}/forecast?q=${encodeURIComponent(city)}&appid=${CONFIG.API_KEY}&units=${CONFIG.UNITS}&lang=${S.lang}`;
+
+                const [wRes, fRes] = await Promise.all([
+                    fetch(url),
+                    fetch(furl)
+                ]);
+
+                if (!wRes.ok) throw new Error(wRes.status === 404 ? 'notfound' : 'error');
+                if (!fRes.ok) throw new Error('forecast');
+
+                const w = await wRes.json();
+                const f = await fRes.json();
+
+                S.w = w;
+                S.f = f;
+                S.city = w.name;
+                S.lat = w.coord.lat;
+                S.lon = w.coord.lon;
+
+                updateUI(w, f);
+                updateChart(f);
+                updateFavs();
+                updateMapPosition(w.coord.lat, w.coord.lon, w.name);
+
+                S.logs.unshift({
+                    city: w.name,
+                    temp: Math.round(w.main.temp) + '°C',
+                    status: w.weather[0].description,
+                    time: new Date().toLocaleTimeString()
+                });
+                if (S.logs.length > ENV.MAX_HISTORY) S.logs.pop();
+                localStorage.setItem('weatherLogs', JSON.stringify(S.logs));
+                updateStats();
+
+                getAQI(w.coord.lat, w.coord.lon);
+
+                hideLod();
+
+            } catch (err) {
+                hideLod();
+                if (err.message === 'notfound') {
+                    showErr(t('notFound'), 'Iltimos, shahar nomini tekshiring', '404');
+                } else if (!navigator.onLine) {
+                    showErr(t('noNet'), t('retry'), 'Offline');
+                } else {
+                    showErr('Xatolik', 'Iltimos, qayta urinib ko\'ring', err.message);
+                }
+            }
+        }
+
+        // ============================================
+        // API - AQI
+        // ============================================
+        async function getAQI(lat, lon) {
+            try {
+                const url = `${CONFIG.API_URL}/air_pollution?lat=${lat}&lon=${lon}&appid=${CONFIG.API_KEY}`;
+                const res = await fetch(url);
+                if (!res.ok) throw new Error('aqi_error');
+                const data = await res.json();
+                S.aqi = data;
+                updateAQI();
+            } catch (err) {
+                console.error('AQI error:', err);
+                D.aqiVal.textContent = '--';
+                D.aqiLbl.textContent = '--';
+                D.pm25.textContent = '--';
+                D.pm10.textContent = '--';
+                D.aqiDesc.textContent = 'Havo sifati ma\'lumotlari mavjud emas';
+            }
+        }
+
+        function updateAQI() {
+            if (!S.aqi || !S.aqi.list || !S.aqi.list[0]) {
+                D.aqiVal.textContent = '--';
+                D.aqiLbl.textContent = '--';
+                D.pm25.textContent = '--';
+                D.pm10.textContent = '--';
+                D.aqiDesc.textContent = 'Ma\'lumotlar yuklanmoqda...';
+                return;
+            }
+
+            const aqi = S.aqi.list[0];
+            const components = aqi.components;
+            
+            const aqiVal = aqi.main.aqi;
+            const aqiLabels = {
+                1: { label: t('aqiGood'), color: '#666666', desc: t('aqiDescGood') },
+                2: { label: t('aqiFair'), color: '#888888', desc: t('aqiDescFair') },
+                3: { label: t('aqiModerate'), color: '#999999', desc: t('aqiDescModerate') },
+                4: { label: t('aqiPoor'), color: '#aaaaaa', desc: t('aqiDescPoor') },
+                5: { label: t('aqiVeryPoor'), color: '#555555', desc: t('aqiDescVeryPoor') }
+            };
+
+            const info = aqiLabels[aqiVal] || aqiLabels[1];
+            D.aqiVal.textContent = aqiVal;
+            D.aqiLbl.textContent = info.label;
+            D.aqiLbl.style.color = info.color;
+            D.aqiVal.style.color = info.color;
+            D.aqiDesc.textContent = info.desc;
+
+            D.pm25.textContent = (components.pm2_5 || 0).toFixed(1);
+            D.pm10.textContent = (components.pm10 || 0).toFixed(1);
+        }
+
+        // ============================================
+        // UPDATE UI
+        // ============================================
+        function updateUI(w, f) {
+            D.tmp.textContent = Math.round(w.main.temp);
+            D.hi.textContent = Math.round(w.main.temp_max);
+            D.lo.textContent = Math.round(w.main.temp_min);
+            D.dsc.textContent = w.weather[0].description.charAt(0).toUpperCase() + w.weather[0].description.slice(1);
+
+            const icons = {
+                '01d': 'fa-solid fa-sun',
+                '01n': 'fa-solid fa-moon',
+                '02d': 'fa-solid fa-cloud-sun',
+                '02n': 'fa-solid fa-cloud-moon',
+                '03d': 'fa-solid fa-cloud',
+                '03n': 'fa-solid fa-cloud',
+                '04d': 'fa-solid fa-cloud',
+                '04n': 'fa-solid fa-cloud',
+                '09d': 'fa-solid fa-cloud-rain',
+                '09n': 'fa-solid fa-cloud-rain',
+                '10d': 'fa-solid fa-cloud-sun-rain',
+                '10n': 'fa-solid fa-cloud-moon-rain',
+                '11d': 'fa-solid fa-cloud-bolt',
+                '11n': 'fa-solid fa-cloud-bolt',
+                '13d': 'fa-solid fa-snowflake',
+                '13n': 'fa-solid fa-snowflake',
+                '50d': 'fa-solid fa-smog',
+                '50n': 'fa-solid fa-smog'
+            };
+            D.icn.innerHTML = `<i class="${icons[w.weather[0].icon] || 'fa-solid fa-cloud'}"></i>`;
+
+            D.wnd.textContent = w.wind.speed.toFixed(1);
+            D.hum.textContent = w.main.humidity;
+            D.feel.textContent = Math.round(w.main.feels_like);
+            D.prs.textContent = w.main.pressure;
+            D.vis.textContent = (w.visibility / 1000).toFixed(1);
+            D.rise.textContent = new Date(w.sys.sunrise * 1000).toLocaleTimeString('uz-UZ', { hour: '2-digit',
+                minute: '2-digit' });
+            D.set.textContent = new Date(w.sys.sunset * 1000).toLocaleTimeString('uz-UZ', { hour: '2-digit',
+                minute: '2-digit' });
+            D.loc.textContent = `${w.name}, ${w.sys.country}`;
+            D.live.textContent = t('live');
+            D.lastUpdate.textContent = ' | Yangilandi: ' + new Date().toLocaleTimeString();
+
+            const rain = w.rain?.['1h'] || w.rain?.['3h'] || 0;
+            D.rain.textContent = rain.toFixed(2);
+
+            const uv = (10 - (w.clouds.all / 10)).toFixed(1);
+            D.uv.textContent = uv;
+            const uvLabels = ['Past', 'O\'rta', 'Yuqori', 'Juda yuqori'];
+            D.uvLbl.textContent = uvLabels[Math.min(Math.floor(uv / 3), 3)] || '--';
+
+            // ===== FORECAST WITH CORRECT DAYS =====
+            const daily = [];
+            const seen = new Set();
+            for (const item of f.list) {
+                const date = item.dt_txt.split(' ')[0];
+                if (!seen.has(date) && daily.length < 7) {
+                    seen.add(date);
+                    daily.push(item);
+                }
+            }
+
+            // Get real week days
+            const weekDays = getWeekDays();
+            const dateLabels = getDateLabels();
+
+            D.fcst.innerHTML = '';
+            daily.forEach((item, i) => {
+                const div = document.createElement('div');
+                div.className = 'fcst-itm';
+                
+                // Highlight today
+                if (i === 0) {
+                    div.classList.add('today');
+                }
+                
+                div.innerHTML = `
+                    <div class="day">${weekDays[i]}</div>
+                    <div class="date-label">${dateLabels[i]}</div>
+                    <div class="icn"><i class="${icons[item.weather[0].icon] || 'fa-solid fa-cloud'}"></i></div>
+                    <div class="hi">${Math.round(item.main.temp_max)}°</div>
+                    <div class="lo">${Math.round(item.main.temp_min)}°</div>
+                `;
+                D.fcst.appendChild(div);
+            });
+
+            D.fcstTtl.textContent = t('forecast');
+        }
+
+        // ============================================
+        // CHART
+        // ============================================
+        function updateChart(f) {
+            if (S.chart) S.chart.destroy();
+
+            const temps = f.list.slice(0, 8).map(item => Math.round(item.main.temp));
+            const labels = f.list.slice(0, 8).map(item => {
+                const d = new Date(item.dt_txt);
+                return d.getHours() + ':00';
+            });
+
+            const isDark = S.isDark;
+            const ctx = D.chart.getContext('2d');
+            S.chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Harorat °C',
+                        data: temps,
+                        borderColor: '#888888',
+                        backgroundColor: 'rgba(136,136,136,0.1)',
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: '#666666',
+                        pointBorderColor: '#999999',
+                        pointBorderWidth: 2,
+                        pointRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            labels: { 
+                                color: isDark ? '#e8e8e8' : '#1a1a1a',
+                                font: { weight: 'bold', size: 10 }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            ticks: { color: isDark ? '#888888' : '#555555', font: { size: 9 } },
+                            grid: { color: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)' }
+                        },
+                        x: {
+                            ticks: { color: isDark ? '#888888' : '#555555', font: { size: 9 } },
+                            grid: { color: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)' }
+                        }
+                    }
+                }
+            });
+        }
+
+        // ============================================
+        // STATS
+        // ============================================
+        function updateStats() {
+            D.statsBody.innerHTML = '';
+            S.logs.slice(0, ENV.MAX_HISTORY).forEach((log, i) => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                            <td>${i + 1}</td>
+                            <td class="city">${log.city}</td>
+                            <td class="tmp">${log.temp}</td>
+                            <td class="stt">${log.status}</td>
+                            <td style="color:#999999; font-size:9px;">${log.time || '--'}</td>
+                        `;
+                D.statsBody.appendChild(tr);
+            });
+        }
+
+        // ============================================
+        // FAVORITES
+        // ============================================
+        function updateFavs() {
+            D.favList.innerHTML = '';
+            if (S.favs.length === 0) {
+                D.favList.innerHTML = '<div style="color:#999999; padding:16px; text-align:center; font-size:12px;">Hali sevimli shaharlar yo\'q</div>';
+                return;
+            }
+            S.favs.slice(0, ENV.MAX_FAVORITES).forEach(city => {
+                const btn = document.createElement('button');
+                btn.className = 'btn';
+                btn.style.fontSize = '11px';
+                btn.innerHTML = `<i class="fa-solid fa-star" style="color:#888888;"></i> ${city}`;
+                btn.onclick = () => {
+                    D.inp.value = city;
+                    getWeather(city);
+                    nav('home');
+                };
+                D.favList.appendChild(btn);
+            });
+            updateFavBadge();
+        }
+
+        function addFav() {
+            if (S.city && !S.favs.includes(S.city)) {
+                if (S.favs.length >= ENV.MAX_FAVORITES) {
+                    showToast(`Maksimum ${ENV.MAX_FAVORITES} ta shahar saqlash mumkin`);
+                    return;
+                }
+                S.favs.push(S.city);
+                localStorage.setItem('favs', JSON.stringify(S.favs));
+                updateFavs();
+                showToast(`${S.city} sevimlilarga qo'shildi!`);
+            } else if (S.favs.includes(S.city)) {
+                showToast(`${S.city} allaqachon sevimlilarda`);
+            }
+        }
+
+        // ============================================
+        // TOAST
+        // ============================================
+        function showToast(msg) {
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.textContent = msg;
+            document.body.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(-50%) translateY(20px) scale(0.9)';
+                toast.style.transition = 'all 0.3s ease';
+                setTimeout(() => toast.remove(), 300);
+            }, 2500);
+        }
+
+        // ============================================
+        // SEARCH / LOCATION
+        // ============================================
+        function search() {
+            const city = D.inp.value.trim();
+            if (city) {
+                getWeather(city);
+                nav('home');
+            }
+        }
+
+        function getLoc() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    async (pos) => {
+                        const { latitude, longitude } = pos.coords;
+                        try {
+                            const res = await fetch(
+                                `${CONFIG.API_URL}/weather?lat=${latitude}&lon=${longitude}&appid=${CONFIG.API_KEY}&units=${CONFIG.UNITS}`
+                            );
+                            const data = await res.json();
+                            if (data.name) {
+                                D.inp.value = data.name;
+                                getWeather(data.name);
+                            }
+                        } catch (err) {
+                            showErr('Xatolik', 'Joylashuvni aniqlab bo\'lmadi', err.message);
+                        }
+                    },
+                    () => {
+                        showErr('Xatolik', 'Joylashuv ruxsati kerak', 'Geolocation denied');
+                    }
+                );
+            }
+        }
+
+        // ============================================
+        // LANGUAGE
+        // ============================================
+        function chLang() {
+            S.lang = D.langSel.value;
+            if (S.w) getWeather(S.city);
+            const texts = {
+                uz: ['5 kunlik prognoz qanchalik aniq?', 'Yomg\'ir yog\'ishini qanday bilsam bo\'ladi?',
+                    'Ma\'lumotlar qaysi manbadan olinadi?', 'Ilova oflayn rejimda ishlaydimi?', 'Havo sifati qanday o\'lchanadi?'
+                ],
+                ru: ['Насколько точен 5-дневный прогноз?', 'Как узнать, будет ли дождь?',
+                    'Откуда берутся данные?', 'Работает ли приложение офлайн?', 'Как измеряется качество воздуха?'
+                ],
+                en: ['How accurate is the 5-day forecast?', 'How can I know if it will rain?',
+                    'Where does the data come from?', 'Does the app work offline?', 'How is air quality measured?'
+                ]
+            };
+            document.querySelectorAll('.faq .q span').forEach((el, i) => {
+                if (texts[S.lang] && texts[S.lang][i]) {
+                    el.textContent = texts[S.lang][i];
+                }
+            });
+        }
+
+        // ============================================
+        // INIT
+        // ============================================
+        D.inp.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') search();
+        });
+
+        D.ver.textContent = `${ENV.APP_VERSION} (${ENV.APP_NAME})`;
+
+        updateFavs();
+        updateStats();
+        updateFavBadge();
+
+        document.body.classList.add('dark');
+        D.stars.style.display = 'block';
+
+        getWeather(CONFIG.DEFAULT_CITY);
+
+        window.addEventListener('online', () => {
+            hideErr();
+            getWeather(S.city);
+        });
+        window.addEventListener('offline', () => {
+            showErr(t('noNet'), t('retry'), 'Offline');
+        });
+
+        setInterval(() => {
+            if (navigator.onLine) {
+                getWeather(S.city);
+            }
+        }, ENV.UPDATE_INTERVAL);
+
+        setTimeout(initMap, 1000);
+        document.getElementById('satBtn').classList.add('sat');
+
+        console.log(`✅ ${ENV.APP_NAME} v${ENV.APP_VERSION} ishga tushdi!`);
+        console.log(`🌧️ Yomg'ir tomchilari: ${ENV.RAIN_DROP_COUNT} ta`);
+        console.log(`⚪ Oq va kulrang ranglar yoqilgan`);
+
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', function() {
+                document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+    </script>
+
+</body>
+</html>
